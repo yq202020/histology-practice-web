@@ -62,6 +62,25 @@ h1{font:700 clamp(22px,3vw,30px)/1.5 "Songti SC","Noto Serif CJK SC","SimSun",se
   .foot,.actions{gap:6px}
 }
 .explanation{border-top:1px solid var(--line);margin-top:12px;padding-top:10px}
+.exam-form{max-width:440px}
+.exam-setting{display:grid;grid-template-columns:minmax(0,1fr) 65px 83px;gap:9px;align-items:center;padding:11px 0;border-bottom:1px solid var(--line)}
+.exam-setting input,.exam-question textarea{width:100%;font:inherit;color:inherit;background:var(--white);border:1px solid var(--line);border-radius:4px;padding:8px}
+.exam-setting input:focus-visible,.exam-question textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.exam-total{font-size:17px;font-weight:650;margin:0}
+.exam-form .exam-total{margin:16px 0}
+.exam-header{border-bottom:1px solid var(--line);padding-bottom:12px}
+.exam-header .quiet{margin:3px 0 0}
+.exam-section h2{font-size:17px;margin:24px 0 14px;color:var(--accent)}
+.exam-question{min-inline-size:0;margin:0 0 20px;padding:0 0 17px;border:0;border-bottom:1px solid var(--line)}
+.exam-question legend{font-weight:600;overflow-wrap:anywhere;padding:0 0 8px;width:100%}
+.exam-question textarea{resize:vertical;display:block}
+.exam-options{display:grid;gap:4px}
+.exam-option{display:flex;align-items:baseline;gap:7px;padding:5px 8px;overflow-wrap:anywhere}
+.exam-option input{accent-color:var(--accent);flex-shrink:0}
+.exam-option.correct{background:var(--soft)}
+.exam-option.incorrect{background:#f7e8e1;color:var(--red)}
+.exam-question .actions{margin:9px 0 0}
+@media(max-width:380px){.exam-setting{grid-template-columns:minmax(0,1fr) 56px 72px;gap:5px}}
 </style>
 <header><div class="head"><div class="brand"><strong>医学免疫学</strong></div><span class="total" id="total"></span></div></header>
 <main>
@@ -87,7 +106,7 @@ let selected = '';
 let storageFailed = false;
 const panel = document.querySelector('#panel');
 const types = ["全部题目", "单选题", "填空题", "名词解释", "问答题"];
-const reviews = ['错题集', '收藏'];
+const reviews = ['模拟试卷', '错题集', '收藏'];
 const inType = q => filter === '全部题目' || (filter === '错题集' ? results[q.id]?.wrong : filter === '收藏' ? results[q.id]?.star : q.type === filter);
 const chapterSelect = document.querySelector('#chapter');
 for (const chapter of ['全部章节', ...new Set(bank.map(q => q.chapter))]) {
@@ -126,6 +145,10 @@ function go(id, focus = false) {
   if (focus) panel.querySelector('h1')?.focus();
 }
 function setFilter(value) {
+  if (value === '模拟试卷') {
+    openExam();
+    return;
+  }
   if (value === '错题集') {
     openMistakes();
     return;
@@ -142,7 +165,7 @@ function renderNav() {
     for (const label of labels) {
       const count = bank.filter(q => (label === '错题集' || chapterSelect.value === '全部章节' || q.chapter === chapterSelect.value) && (label === '全部题目' || q.type === label || (label === '错题集' && results[q.id]?.wrong) || (label === '收藏' && results[q.id]?.star))).length;
       const control = button(label, () => setFilter(label));
-      control.append(node('span', count));
+      if (label !== '模拟试卷') control.append(node('span', count));
       control.setAttribute('aria-current', String(label === filter));
       nav.append(control);
     }
@@ -211,9 +234,259 @@ function recordAttempt(q, wrong) {
   record(q, {done: true, wrong, wrongCount: count + Number(wrong)});
 }
 
+const examKey = storageKey + '-exam';
+let exam = null;
+try {
+  const draft = JSON.parse(localStorage.getItem(examKey) || 'null');
+  if (draft?.items?.length && draft.items.every(item => byId.has(item.id))) exam = draft;
+} catch {}
+
+const examDefaults = {
+  '单选题': [20, 2],
+  '填空题': [5, 2],
+  '名词解释': [5, 4],
+  '问答题': [types.includes('填空题') ? 3 : 4, 10],
+  '功效速记': [0, 4],
+};
+const examPools = Object.fromEntries(types.slice(1).map(kind => [
+  kind, bank.filter(q => q.type === kind && q.answer),
+]));
+let configuringExam = false;
+
+function saveExam() {
+  try { localStorage.setItem(examKey, JSON.stringify(exam)); }
+  catch { storageFailed = true; }
+}
+
+function openExam() {
+  filter = '模拟试卷';
+  mistakeList = false;
+  configuringExam = !exam;
+  render();
+  panel.querySelector('h1')?.focus();
+}
+
+function renderExam() {
+  const title = node('h1', '模拟试卷');
+  title.tabIndex = -1;
+  panel.append(title);
+  if (configuringExam) {
+    renderExamSetup();
+    return;
+  }
+  renderExamPaper();
+  if (storageFailed) panel.append(node('p', '浏览器未允许保存试卷，本次作答仅在当前页面保留。', 'quiet'));
+}
+
+function renderExamSetup() {
+  const form = node('form', null, 'exam-form');
+  const countInputs = [];
+  for (const kind of types.slice(1)) {
+    const pool = examPools[kind];
+    const [defaultCount, points] = examDefaults[kind];
+    const label = node('label', null, 'exam-setting');
+    label.append(node('span', kind + ' · 每题 ' + points + ' 分', 'exam-setting-name'));
+    const input = node('input');
+    input.type = 'number';
+    input.min = '0';
+    input.max = String(pool.length);
+    input.step = '1';
+    input.required = true;
+    input.value = String(Math.min(defaultCount, pool.length));
+    label.append(input, node('small', '可选 ' + pool.length + ' 题', 'quiet'));
+    form.append(label);
+    countInputs.push({kind, input, points});
+  }
+  const total = node('p', null, 'exam-total');
+  total.setAttribute('aria-live', 'polite');
+  const submit = node('button', '生成试卷', 'primary');
+  submit.type = 'submit';
+  function summarize() {
+    const count = countInputs.reduce((sum, row) => sum + Number(row.input.value), 0);
+    const score = countInputs.reduce((sum, row) => sum + Number(row.input.value) * row.points, 0);
+    total.textContent = '共 ' + count + ' 题，满分 ' + score + ' 分';
+    submit.disabled = !count;
+  }
+  form.addEventListener('input', summarize);
+  form.addEventListener('submit', event => {
+    event.preventDefault();
+    const items = [];
+    for (const {kind, input, points} of countInputs) {
+      const pool = [...examPools[kind]];
+      const count = Number(input.value);
+      if (!Number.isInteger(count) || count < 0 || count > pool.length) return;
+      for (let i = 0; i < count; i++) {
+        const pick = i + Math.floor(Math.random() * (pool.length - i));
+        [pool[i], pool[pick]] = [pool[pick], pool[i]];
+        items.push({id:pool[i].id, points, response:'', score:null});
+      }
+    }
+    if (!items.length) return;
+    exam = {items, submitted:false};
+    configuringExam = false;
+    saveExam();
+    render();
+    panel.querySelector('h1')?.focus();
+  });
+  summarize();
+  const actions = node('div', null, 'actions');
+  actions.append(submit);
+  if (exam) actions.append(button('返回当前试卷', () => {configuringExam = false; render();}));
+  form.append(total, actions);
+  panel.append(form);
+}
+
+function renderExamPaper() {
+  const maximum = exam.items.reduce((sum, item) => sum + item.points, 0);
+  const scoreStatus = node('p', null, 'exam-total');
+  scoreStatus.setAttribute('aria-live', 'polite');
+  const outstanding = node('p', null, 'quiet');
+  function refreshScore() {
+    if (exam.submitted) {
+      const score = exam.items.reduce((sum, item) => sum + (item.score ?? 0), 0);
+      const pending = exam.items.filter(item => item.score === null).length;
+      scoreStatus.textContent = '已得 ' + score + ' / ' + maximum + ' 分';
+      outstanding.textContent = pending ? '还有 ' + pending + ' 道主观题待自评。' : '评分完成。';
+    } else {
+      const answered = exam.items.filter(item => item.response.trim()).length;
+      scoreStatus.textContent = '已作答 ' + answered + ' / ' + exam.items.length + ' 题 · 满分 ' + maximum + ' 分';
+      outstanding.textContent = '交卷后显示答案和解析。';
+    }
+  }
+  const header = node('div', null, 'exam-header');
+  header.append(scoreStatus, outstanding);
+  panel.append(header);
+  refreshScore();
+
+  let lastType;
+  let section;
+  for (const [index, item] of exam.items.entries()) {
+    const q = byId.get(item.id);
+    if (q.type !== lastType) {
+      lastType = q.type;
+      section = node('section', null, 'exam-section');
+      section.append(node('h2', q.type + ' · 每题 ' + item.points + ' 分'));
+      panel.append(section);
+    }
+    const card = node('fieldset', null, 'exam-question');
+    card.append(node('legend', (index + 1) + '．' + q.question));
+    if (q.options.length) {
+      const options = node('div', null, 'exam-options');
+      for (const [key, value] of q.options) {
+        const label = node('label', null, 'exam-option');
+        const input = node('input');
+        input.type = 'radio';
+        input.name = 'exam-q-' + index;
+        input.value = key;
+        input.checked = item.response === key;
+        input.disabled = exam.submitted;
+        input.addEventListener('change', () => {
+          item.response = key;
+          saveExam();
+          refreshScore();
+        });
+        if (exam.submitted && key === q.answer) label.classList.add('correct');
+        if (exam.submitted && key === item.response && key !== q.answer) label.classList.add('incorrect');
+        label.append(input, node('span', value));
+        options.append(label);
+      }
+      card.append(options);
+    } else {
+      const response = node('textarea');
+      response.rows = q.type === '填空题' ? 2 : 4;
+      response.value = item.response;
+      response.readOnly = exam.submitted;
+      response.placeholder = '输入你的答案';
+      response.setAttribute('aria-label', '第 ' + (index + 1) + ' 题作答');
+      response.addEventListener('input', () => {
+        item.response = response.value;
+        saveExam();
+        refreshScore();
+      });
+      card.append(response);
+    }
+    if (exam.submitted) renderExamAnswer(card, item, q, index, refreshScore);
+    section.append(card);
+  }
+  const foot = node('div', null, 'foot');
+  if (exam.submitted) {
+    foot.append(button('重新组卷', () => {
+      configuringExam = true;
+      render();
+      panel.querySelector('h1')?.focus();
+    }, 'primary'));
+  } else {
+    foot.append(button('交卷', () => {
+      const unanswered = exam.items.filter(item => !item.response.trim()).length;
+      if (unanswered && !window.confirm('还有 ' + unanswered + ' 题未作答。现在交卷吗？')) return;
+      for (const item of exam.items) {
+        const q = byId.get(item.id);
+        if (q.options.length) {
+          const correct = item.response === q.answer;
+          item.score = correct ? item.points : 0;
+          if (item.response) recordAttempt(q, !correct);
+        } else if (!item.response.trim()) {
+          item.score = 0;
+        }
+      }
+      exam.submitted = true;
+      saveExam();
+      render();
+      panel.querySelector('h1')?.focus();
+    }, 'primary'));
+    foot.append(button('重新组卷', () => {
+      configuringExam = true;
+      render();
+      panel.querySelector('h1')?.focus();
+    }));
+  }
+  panel.append(foot);
+}
+
+function renderExamAnswer(card, item, q, index, refreshScore) {
+  const answer = node('div', null, 'answer');
+  const text = q.options.find(([key]) => key === q.answer)?.[1] || q.answer;
+  answer.append(node('strong', '参考答案'), node('div', text));
+  if (q.explanation) answer.append(node('div', q.explanation, 'explanation'));
+  if (q.source) answer.append(node('div', '来源 · ' + q.source, 'quiet'));
+  card.append(answer);
+  if (q.options.length || !item.response.trim()) {
+    card.append(node('p', '得分 ' + item.score + ' / ' + item.points, 'quiet'));
+    return;
+  }
+  const label = node('label', null, 'actions');
+  const select = node('select', null, 'jump');
+  select.setAttribute('aria-label', '第 ' + (index + 1) + ' 题自评得分');
+  const pending = node('option', '请选择得分');
+  pending.value = '';
+  pending.disabled = true;
+  select.append(pending);
+  for (let n = 0; n <= item.points; n++) {
+    const option = node('option', n + ' 分');
+    option.value = String(n);
+    select.append(option);
+  }
+  select.value = item.score === null ? '' : String(item.score);
+  select.addEventListener('change', () => {
+    const firstScore = item.score === null;
+    item.score = Number(select.value);
+    const wrong = item.score < item.points;
+    if (firstScore) recordAttempt(q, wrong);
+    else record(q, {done:true, wrong});
+    saveExam();
+    refreshScore();
+  });
+  label.append(node('span', '自评（满分 ' + item.points + ' 分）'), select);
+  card.append(label);
+}
+
 function render() {
   renderNav();
   panel.replaceChildren();
+  if (filter === '模拟试卷') {
+    renderExam();
+    return;
+  }
   if (mistakeList) {
     renderMistakes();
     return;
