@@ -18,7 +18,12 @@ const SYNC_SUBJECT = syncForm.dataset.subject;
 const STUDY_BASE = 'https://yq202020.github.io/histology-practice-web/';
 const STUDY_ROOT = new URL(STUDY_BASE);
 const RETURN_KEY = 'study-sync-return-v1';
-const isAuthCallback = new URLSearchParams(location.search).has('code');
+const authQuery = new URLSearchParams(location.search);
+const authHash = new URLSearchParams(location.hash.slice(1));
+const isAuthCallback = authQuery.has('code');
+const linkError = authQuery.get('error_code') || authHash.get('error_code')
+  || authQuery.get('error') || authHash.get('error');
+let showLinkError = Boolean(linkError);
 const validSubject = /^[a-z][a-z0-9-]{0,47}$/;
 const subjectPath = subject => STUDY_ROOT.pathname + (subject === 'histology' ? '' : subject + '/');
 
@@ -173,7 +178,9 @@ function showSyncSession(session) {
   syncEnable.hidden = !account || syncEnabled(account);
   syncStatus.textContent = account
     ? (syncEnabled(account) ? '正在同步…' : '已登录。开启后会把本机此科的错题、收藏和练习进度合并到此账号。')
-    : '本机练习，无需登录。';
+    : showLinkError
+      ? '此登录链接已失效或无法验证。已使用的链接不能在另一台设备上再用。'
+      : '本机练习，无需登录。';
   if (account && syncEnabled(account)) void syncStudy();
 }
 
@@ -196,6 +203,7 @@ function initializeSync() {
     event.preventDefault();
     if (syncLogin.disabled) return;
     syncLogin.disabled = true;
+    showLinkError = false;
     syncStatus.textContent = '正在请求登录邮件…';
     try {
       localStorage.setItem(RETURN_KEY, JSON.stringify({
@@ -214,7 +222,11 @@ function initializeSync() {
         const seconds = Number(error.message?.match(/(\d+)\s+seconds?/i)?.[1]);
         if (seconds > 0) showResendCooldown(seconds);
         else syncLogin.disabled = false;
-        syncStatus.textContent = '发送过于频繁。若刚发送过，请先查看收件箱或垃圾邮件；也可稍后重试。';
+        syncStatus.textContent = seconds > 0
+          ? '短时间内已发送过。请查看收件箱，或等倒计时结束。'
+          : error.code === 'over_email_send_rate_limit'
+            ? '项目邮件发送额度已用完。请等额度恢复后，在要登录的设备上重新发送。'
+            : '发送过于频繁。请稍后重试。';
         return;
       }
       syncLogin.disabled = false;
