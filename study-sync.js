@@ -1,4 +1,11 @@
 const syncForm = document.querySelector('#study-sync');
+syncForm.innerHTML = `
+  <label>同步邮箱 <input id="study-sync-email" type="email" autocomplete="email" required></label>
+  <button id="study-sync-login" type="submit" disabled>发送登录链接</button>
+  <button id="study-sync-enable" type="button" hidden>合并本机记录并开启同步</button>
+  <button id="study-sync-logout" type="button" hidden>退出账号</button>
+  <span class="quiet" id="study-sync-status" role="status">本机练习，无需登录。</span>
+`;
 const syncStatus = document.querySelector('#study-sync-status');
 const syncEmail = document.querySelector('#study-sync-email');
 const syncLogin = document.querySelector('#study-sync-login');
@@ -9,7 +16,25 @@ const SUPABASE_URL = 'https://qijndqclowswnidbajuj.supabase.co';
 const PUBLISHABLE_KEY = 'sb_publishable_3_bkZtbaQud1BmdrI63iWQ_QLvdlMPZ';
 const SYNC_SUBJECT = syncForm.dataset.subject;
 const STUDY_BASE = 'https://yq202020.github.io/histology-practice-web/';
-const STUDY_URL = STUDY_BASE + (SYNC_SUBJECT === 'histology' ? '' : SYNC_SUBJECT + '/');
+const STUDY_ROOT = new URL(STUDY_BASE);
+const RETURN_KEY = 'study-sync-return-v1';
+const isAuthCallback = new URLSearchParams(location.search).has('code');
+const validSubject = /^[a-z][a-z0-9-]{0,47}$/;
+const subjectPath = subject => STUDY_ROOT.pathname + (subject === 'histology' ? '' : subject + '/');
+
+function returnToSubject(session) {
+  if (!session || !isAuthCallback || location.pathname !== STUDY_ROOT.pathname) return false;
+  try {
+    const pending = JSON.parse(localStorage.getItem(RETURN_KEY) || 'null');
+    localStorage.removeItem(RETURN_KEY);
+    if (pending && validSubject.test(pending.subject) && pending.expires > Date.now()
+        && pending.subject !== 'histology') {
+      location.replace(subjectPath(pending.subject) + '#study-sync');
+      return true;
+    }
+  } catch {}
+  return false;
+}
 let syncClient;
 let syncSession;
 let syncRunning = false;
@@ -139,7 +164,7 @@ function showSyncSession(session) {
 }
 
 function initializeSync() {
-  if (location.origin + location.pathname !== STUDY_URL || !window.supabase) {
+  if (!validSubject.test(SYNC_SUBJECT) || location.origin !== STUDY_ROOT.origin || location.pathname !== subjectPath(SYNC_SUBJECT) || !window.supabase) {
     syncLogin.disabled = true;
     syncStatus.textContent = '同步暂不可用，本机练习仍可继续。';
     return;
@@ -149,16 +174,21 @@ function initializeSync() {
     auth: {storageKey: 'tcm-sync-auth-v1', flowType: 'pkce'}
   });
   syncClient.auth.onAuthStateChange((_event, session) => {
-    setTimeout(() => showSyncSession(session), 0);
+    setTimeout(() => {
+      if (!returnToSubject(session)) showSyncSession(session);
+    }, 0);
   });
   syncForm.addEventListener('submit', async event => {
     event.preventDefault();
     syncLogin.disabled = true;
     syncStatus.textContent = '正在请求登录邮件…';
     try {
+      localStorage.setItem(RETURN_KEY, JSON.stringify({
+        subject: SYNC_SUBJECT, expires: Date.now() + 60 * 60 * 1000
+      }));
       const {error} = await syncClient.auth.signInWithOtp({
         email: syncEmail.value.trim(),
-        options: {emailRedirectTo: STUDY_URL}
+        options: {emailRedirectTo: STUDY_BASE}
       });
       syncStatus.textContent = error
         ? '登录邮件发送失败。请核对邮箱，稍后再试。'
