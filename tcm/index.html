@@ -83,8 +83,48 @@ h1{font:700 clamp(22px,3vw,30px)/1.5 "Songti SC","Noto Serif CJK SC","SimSun",se
 @media(max-width:380px){.exam-setting{grid-template-columns:minmax(0,1fr) 56px 72px;gap:5px}}
 #study-sync{max-width:1120px;margin:12px auto 0;padding:0 30px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 #study-sync input{font:inherit;max-width:100%;padding:5px;border:1px solid var(--line);border-radius:4px}
+.subject-nav{max-width:1120px;margin:auto;padding:6px 30px;display:flex;gap:6px;flex-wrap:wrap}.subject-nav a{color:var(--accent,#244f40);padding:8px 12px;text-decoration:none;border-radius:8px;line-height:1.3}.subject-nav a[aria-current=page]{font-weight:700;background:var(--soft,#e8eee5)}.subject-nav a:focus-visible{outline:2px solid var(--accent,#244f40)}@media(max-width:680px){.subject-nav{padding-inline:12px}}
+body{font-family:system-ui,"PingFang SC","Microsoft YaHei",sans-serif}
+.head{padding-block:16px}
+main{column-gap:26px;margin-top:18px}
+button,.jump{border-radius:8px;min-height:44px}
+button[aria-pressed=true]{background:var(--soft);border-color:var(--accent);color:var(--accent);font-weight:650}
+button.primary{background:var(--accent);color:white}
+button.primary:hover:not(:disabled){filter:brightness(1.12)}
+.panel{border-radius:14px;box-shadow:0 4px 18px #25372d0b}
+.choices button{min-height:50px}
+#study-overview{max-width:1060px;margin:18px auto 0;padding:12px 16px;border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:10px;background:var(--white);display:flex;gap:12px;align-items:center;justify-content:space-between}
+#study-overview strong,#study-overview .quiet{display:block}
+.study-draft{display:block;color:var(--muted);font-size:14px;margin-bottom:16px}
+.study-draft textarea{display:block;width:100%;resize:vertical;margin-top:5px;padding:9px;border:1px solid var(--line);border-radius:8px;background:var(--white);color:var(--ink);font:inherit}
+.study-draft textarea:focus-visible,.study-checklist input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.study-checklist{margin:12px 0;border:1px solid var(--line);padding:8px 12px;border-radius:8px}
+.study-checklist label{display:flex;gap:8px;align-items:baseline;padding:5px 0}
+.study-checklist input{accent-color:var(--accent);flex:none}
+.confidence{margin-top:12px}
+.shortcuts{margin:10px 0 0}
+@media(max-width:1119px){#study-overview{margin-inline:30px}}
+@media(max-width:680px){
+  #study-overview{margin:10px 12px 0}
+  main{margin-top:10px}
+  nav button{min-height:44px}
+  .foot .actions:first-child{display:grid;grid-template-columns:auto minmax(0,1fr) auto;width:100%}
+  .shortcuts{display:none}
+}
+.ig-diagram{position:relative;width:min(100%,340px);height:232px;border:1px solid var(--line);border-radius:12px;background:var(--soft);margin:14px 0;color:var(--ink)}
+.ig-chain{position:absolute;display:block;border-radius:10px;background:var(--accent);height:9px;transform-origin:left center}
+.ig-chain.heavy-left{width:105px;left:50%;top:108px;transform:rotate(228deg)}
+.ig-chain.heavy-right{width:105px;left:50%;top:108px;transform:rotate(-48deg)}
+.ig-chain.light-left,.ig-chain.light-right{width:69px;background:#975820}
+.ig-chain.light-left{left:calc(50% - 24px);top:104px;transform:rotate(228deg)}
+.ig-chain.light-right{left:calc(50% + 24px);top:104px;transform:rotate(-48deg)}
+.ig-chain.stem{height:79px;width:14px;top:108px;left:calc(50% - 6px)}
+button.ig-marker{position:absolute;min-width:44px;padding:0;border-color:var(--accent);border-radius:50%;font-weight:700}
+button.ig-marker[aria-pressed=true]{background:var(--accent);color:white}
+.marker-1{left:calc(50% + 68px);top:63px}.marker-2{left:calc(50% + 22px);top:104px}
+.marker-3{left:calc(50% - 22px);top:177px}.marker-4{left:calc(50% - 96px);top:15px}
 </style>
-<header><div class="head"><div class="brand"><strong>中药学</strong></div><span class="total" id="total"></span></div></header>
+<header><div class="head"><div class="brand"><strong>中药学</strong></div><span class="total" id="total"></span></div><nav class="subject-nav" aria-label="切换科目"><a href="../">组织学与胚胎学</a><a href="../tcm/" aria-current="page">中药学</a><a href="../immunology/">医学免疫学</a></nav></header>
 <form id="study-sync" aria-label="跨浏览器同步">
   <label>同步邮箱 <input id="study-sync-email" type="email" autocomplete="email" required></label>
   <button id="study-sync-login" type="submit" disabled>发送登录链接</button>
@@ -92,6 +132,7 @@ h1{font:700 clamp(22px,3vw,30px)/1.5 "Songti SC","Noto Serif CJK SC","SimSun",se
   <button id="study-sync-logout" type="button" hidden>退出同步</button>
   <span class="quiet" id="study-sync-status" role="status">本机练习，无需登录。</span>
 </form>
+<section id="study-overview" aria-label="今日复习"></section>
 <main>
 <aside><h2>练习范围</h2><select class="jump chapter" id="chapter" aria-label="按章节筛选"></select><nav id="types" aria-label="题型"></nav><nav class="tools" id="review" aria-label="复习范围"></nav></aside>
 <section class="panel" id="panel" aria-label="当前练习"></section>
@@ -243,7 +284,7 @@ function renderMistakes() {
 function recordAttempt(q, wrong) {
   const previous = results[q.id];
   const count = previous?.wrongCount || Number(Boolean(previous?.wrong));
-  record(q, {done: true, wrong, wrongCount: count + Number(wrong)});
+  record(q, {done: true, wrong, wrongCount: count + Number(wrong), ...reviewPatch(q, wrong ? 'retry' : 'known')});
 }
 
 const examKey = storageKey + '-exam';
@@ -309,6 +350,11 @@ function renderExamSetup() {
     form.append(label);
     countInputs.push({kind, input, points});
   }
+  const targeted = node('input');
+  targeted.type = 'checkbox';
+  const targetedLabel = node('label');
+  targetedLabel.append(targeted, node('span', ' 优先练错题、模糊题和到期题'));
+  form.append(targetedLabel);
   const total = node('p', null, 'exam-total');
   total.setAttribute('aria-live', 'polite');
   const submit = node('button', '生成试卷', 'primary');
@@ -324,12 +370,10 @@ function renderExamSetup() {
     event.preventDefault();
     const items = [];
     for (const {kind, input, points} of countInputs) {
-      const pool = [...examPools[kind]];
+      const pool = chooseExamPool(kind, targeted.checked);
       const count = Number(input.value);
       if (!Number.isInteger(count) || count < 0 || count > pool.length) return;
       for (let i = 0; i < count; i++) {
-        const pick = i + Math.floor(Math.random() * (pool.length - i));
-        [pool[i], pool[pick]] = [pool[pick], pool[i]];
         items.push({id:pool[i].id, points, response:'', score:null});
       }
     }
@@ -453,6 +497,7 @@ function renderExamPaper() {
     }));
   }
   panel.append(foot);
+  panel.append(node('p', '键盘：← → 切题 · 空格看答案 · 数字键选答案', 'quiet shortcuts'));
 }
 
 function renderExamAnswer(card, item, q, index, refreshScore) {
@@ -494,6 +539,7 @@ function renderExamAnswer(card, item, q, index, refreshScore) {
 
 function render() {
   renderNav();
+  showReviewSummary();
   panel.replaceChildren();
   if (filter === '模拟试卷') {
     renderExam();
@@ -520,6 +566,7 @@ function render() {
   const title = node('h1', q.question);
   title.tabIndex = -1;
   panel.append(meta, progress, title);
+  if (!q.options.length && q.answer) panel.append(answerDraft(q));
   if (q.options.length) {
     const choices = node('div', null, 'choices');
     for (const [key, label] of q.options) {
@@ -527,6 +574,7 @@ function render() {
         if (selected) return;
         selected = key;
         revealed = true;
+        if (q.answer) assessment = key === q.answer ? 'known' : 'retry';
         if (q.answer) recordAttempt(q, key !== q.answer);
         update('choice-' + key);
       });
@@ -570,26 +618,19 @@ function render() {
     answer.append(node('div', '来源 · ' + q.source, 'quiet'));
   }
   panel.append(answer);
-  if (revealed && ((!q.options.length && q.answer) || q.reference)) {
-    const assess = node('div', null, 'actions');
-    for (const [label, wrong, id] of [['已掌握',false,'known'],['记为错题',true,'unknown']]) {
-      const control = button(label, () => {
-        if (assessment === wrong) return;
-        assessment = wrong;
-        recordAttempt(q, wrong);
-        update(id);
-      });
-      control.id = id;
-      control.setAttribute('aria-pressed', String(results[q.id]?.done && results[q.id]?.wrong === wrong || false));
-      assess.append(control);
+  if (revealed && (q.answer || q.reference)) {
+    if (!q.options.length) {
+      const checklist = answerChecklist(q, q.answer || q.reference);
+      if (checklist) panel.append(checklist);
     }
-    if (results[q.id]?.done) assess.append(node('span', results[q.id].wrong ? '已加入错题' : '已标为掌握', 'quiet'));
-    panel.append(assess);
+    panel.append(confidenceControls(q));
   }
   const foot = node('div', null, 'foot');
   const previous = button('上一题', () => go(queue[index - 1], true));
+  previous.id = "previous-question";
   previous.disabled = index === 0;
   const next = button('下一题', () => go(queue[index + 1], true));
+  next.id = "next-question";
   next.disabled = index === queue.length - 1;
   const jump = node('select', null, 'jump');
   jump.setAttribute('aria-label', '跳到指定题目');
@@ -605,7 +646,9 @@ function render() {
   paging.append(previous, jump, next);
   const secondary = filter === '错题集'
     ? button('返回错题集', openMistakes)
-    : button('随机排序', shuffle);
+    : filter === reviewMode
+      ? button('结束复习', () => setFilter('全部题目'))
+      : button('随机排序', shuffle);
   foot.append(paging, secondary);
   panel.append(foot);
   if (filter === '错题集' && results[q.id]?.done && !results[q.id].wrong) {
@@ -613,6 +656,145 @@ function render() {
   }
   if (storageFailed) panel.append(node('p', '浏览器未允许本地存储，本次记录会在关闭后清除。', 'quiet'));
 }
+const day = 86400000;
+const reviewMode = '今日复习';
+const reviewDrafts = new Map();
+const reviewChecks = new Map();
+const relatedTopics = [
+  /黄芩|黄连|黄柏/, /煎服|先煎|后下|包煎|另煎|烊化/, /止痛|痛经/, /止泻|泄泻/,
+  /补体|C3转化酶/, /MHC|HLA|抗原提呈/, /超敏反应/, /ELISA/, /Ig[GAMED]|免疫球蛋白/
+];
+const confidenceLevels = [['不会', 'retry'], ['模糊／蒙对', 'unsure'], ['熟练', 'known']];
+
+function dueDate(question) {
+  const entry = results[question.id];
+  return entry?.reviewDue || (entry?.wrong ? 1 : Infinity);
+}
+
+function reviewPlan(now = Date.now()) {
+  const due = bank.filter(q => dueDate(q) <= now).sort((a,b) => dueDate(a) - dueDate(b));
+  const chosen = due.slice(0, 8);
+  const chapters = new Set(chosen.map(q => q.chapter));
+  const fresh = bank.filter(q => !results[q.id]?.done && !chosen.includes(q) && (q.answer || q.reference));
+  const topics = relatedTopics.filter(topic => chosen.some(q => topic.test(q.question)));
+  const variants = fresh.filter(q => topics.some(topic => topic.test(q.question)));
+  const nearby = fresh.filter(q => q.chapter && chapters.has(q.chapter));
+  const extras = [...new Set([...variants, ...nearby, ...fresh])];
+  const written = extras.find(q => q.type === '问答题');
+  return [...new Set([...chosen, ...extras.slice(0, chosen.length ? 2 : 5), ...(written ? [written] : [])])];
+}
+
+function reviewPatch(q, level) {
+  const streak = level === 'known' ? Math.min((results[q.id]?.reviewStreak || 0) + 1, 5) : 0;
+  const interval = level === 'known' ? [1, 3, 7, 14, 30][streak - 1] : 1;
+  return {confidence: level, reviewStreak: streak, reviewDue: Date.now() + interval * day};
+}
+
+function openToday() {
+  filter = reviewMode;
+  mistakeList = false;
+  queue = reviewPlan().map(q => q.id);
+  go(queue[0], true);
+}
+
+function showReviewSummary() {
+  const due = bank.filter(q => dueDate(q) <= Date.now());
+  const row = document.querySelector('#study-overview');
+  row.replaceChildren();
+  const info = node('div');
+  info.append(node('strong', '今日复习'), node('span',
+    due.length ? due.length + ' 道待复习' : '暂无到期题', 'quiet'));
+  const start = button(filter === reviewMode ? '重新安排' : '开始复习', openToday, 'primary');
+  row.append(info, start);
+}
+
+function confidenceControls(q) {
+  const group = node('div', null, 'actions confidence');
+  group.setAttribute('role', 'group');
+  group.setAttribute('aria-label', '自评掌握程度');
+  for (const [label, level] of confidenceLevels) {
+    const control = button(label, () => {
+      if (assessment === level) return;
+      const wrong = level === 'retry';
+      const count = results[q.id]?.wrongCount || Number(Boolean(results[q.id]?.wrong));
+      assessment = level;
+      record(q, {
+        ...reviewPatch(q, level),
+        ...(q.options.length ? {} : {done:true, wrong, wrongCount:count + Number(wrong)})
+      });
+      update(control.id);
+    });
+    control.id = 'confidence-' + level;
+    control.setAttribute('aria-pressed', String(results[q.id]?.confidence === level));
+    group.append(control);
+  }
+  return group;
+}
+
+function answerDraft(q) {
+  const label = node('label', '先写要点，再对照答案', 'study-draft');
+  const input = node('textarea');
+  input.rows = 3;
+  input.value = reviewDrafts.get(q.id) || '';
+  input.addEventListener('input', () => reviewDrafts.set(q.id, input.value));
+  label.append(input);
+  return label;
+}
+
+function answerChecklist(q, text) {
+  const points = text.split(/[。；;\n]+/).map(part => part.trim()).filter(Boolean);
+  if (points.length < 2 || points.length > 12) return null;
+  const fieldset = node('fieldset', null, 'study-checklist');
+  fieldset.append(node('legend', '勾选你写到的要点'));
+  if (!reviewChecks.has(q.id)) reviewChecks.set(q.id, new Set());
+  const checked = reviewChecks.get(q.id);
+  const status = node('div', null, 'quiet');
+  status.setAttribute('role', 'status');
+  const showCount = () => { status.textContent = '已写到 ' + checked.size + ' / ' + points.length + ' 点'; };
+  points.forEach((point, index) => {
+    const label = node('label');
+    const box = node('input');
+    box.type = 'checkbox';
+    box.checked = checked.has(index);
+    box.addEventListener('change', () => {
+      if (box.checked) checked.add(index);
+      else checked.delete(index);
+      showCount();
+    });
+    label.append(box, node('span', point));
+    fieldset.append(label);
+  });
+  showCount();
+  fieldset.append(status);
+  return fieldset;
+}
+
+function chooseExamPool(kind, targeted) {
+  const pool = examPools[kind].map(question => ({question, tie:Math.random()}));
+  if (!targeted) return pool.sort((a,b) => a.tie - b.tie).map(row => row.question);
+  const priority = q => {
+    const entry = results[q.id];
+    return (entry?.wrong ? 4 : 0) + (entry?.confidence === 'unsure' ? 2 : 0) +
+      (dueDate(q) <= Date.now() ? 1 : 0);
+  };
+  return pool.sort((a,b) => priority(b.question) - priority(a.question) || a.tie - b.tie).map(row => row.question);
+}
+
+document.addEventListener('keydown', event => {
+  if (event.defaultPrevented || event.repeat || event.altKey || event.ctrlKey || event.metaKey ||
+      event.target.closest('input, textarea, select, a, summary, [contenteditable]') ||
+      (event.key === ' ' && event.target.closest('button')) ||
+      filter === '模拟试卷' || mistakeList || !panel.querySelector('#answer-toggle')) return;
+  const shortcuts = {
+    ArrowLeft: '#previous-question', ArrowRight: '#next-question', ' ': '#answer-toggle',
+    '1': '#choice-A', '2': '#choice-B', '3': '#choice-C', '4': '#choice-D', '5': '#choice-E'
+  };
+  const target = shortcuts[event.key] && panel.querySelector(shortcuts[event.key]);
+  if (!target || target.disabled || target.getAttribute('aria-disabled') === 'true') return;
+  event.preventDefault();
+  target.click();
+});
+
 render();
 const syncForm = document.querySelector('#study-sync');
 const syncStatus = document.querySelector('#study-sync-status');
