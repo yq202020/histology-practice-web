@@ -39,6 +39,20 @@ let syncClient;
 let syncSession;
 let syncRunning = false;
 let syncDirty = false;
+let resendTimer;
+
+function showResendCooldown(seconds) {
+  clearInterval(resendTimer);
+  const deadline = Date.now() + seconds * 1000;
+  const tick = () => {
+    const remaining = Math.max(0, Math.ceil((deadline - Date.now()) / 1000));
+    syncLogin.textContent = remaining ? remaining + ' 秒后可重发' : '发送登录链接';
+    syncLogin.disabled = remaining > 0;
+    if (!remaining) clearInterval(resendTimer);
+  };
+  resendTimer = setInterval(tick, 1000);
+  tick();
+}
 
 function syncKey(account, name) {
   return storageKey + '-cloud-' + account + '-' + name;
@@ -180,6 +194,7 @@ function initializeSync() {
   });
   syncForm.addEventListener('submit', async event => {
     event.preventDefault();
+    if (syncLogin.disabled) return;
     syncLogin.disabled = true;
     syncStatus.textContent = '正在请求登录邮件…';
     try {
@@ -190,13 +205,23 @@ function initializeSync() {
         email: syncEmail.value.trim(),
         options: {emailRedirectTo: STUDY_BASE}
       });
-      syncStatus.textContent = error
-        ? '登录邮件发送失败。请核对邮箱，稍后再试。'
-        : '请在同一个浏览器打开邮件中的一次性登录链接。';
-    } catch {
-      syncStatus.textContent = '暂时无法发送登录邮件。';
-    } finally {
+      if (!error) {
+        syncStatus.textContent = '登录邮件已提交发送。请查看收件箱或垃圾邮件，在同一个浏览器打开邮件链接。';
+        showResendCooldown(60);
+        return;
+      }
+      if (error.status === 429) {
+        const seconds = Number(error.message?.match(/(\d+)\s+seconds?/i)?.[1]);
+        if (seconds > 0) showResendCooldown(seconds);
+        else syncLogin.disabled = false;
+        syncStatus.textContent = '发送过于频繁。若刚发送过，请先查看收件箱或垃圾邮件；也可稍后重试。';
+        return;
+      }
       syncLogin.disabled = false;
+      syncStatus.textContent = '登录邮件发送失败。请核对邮箱，稍后再试。';
+    } catch {
+      syncLogin.disabled = false;
+      syncStatus.textContent = '暂时无法发送登录邮件。';
     }
   });
   syncEnable.addEventListener('click', () => {
