@@ -123,8 +123,9 @@ button.ig-marker{position:absolute;min-width:44px;padding:0;border-color:var(--a
 button.ig-marker[aria-pressed=true]{background:var(--accent);color:white}
 .marker-1{left:calc(50% + 68px);top:63px}.marker-2{left:calc(50% + 22px);top:104px}
 .marker-3{left:calc(50% - 22px);top:177px}.marker-4{left:calc(50% - 96px);top:15px}
+.subject-nav .sync-nav-link{margin-left:auto;border:1px solid var(--accent,#244f40);font-weight:650}#study-sync:target{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px;scroll-margin-top:12px}@media(max-width:680px){.subject-nav .sync-nav-link{margin-left:0}}
 </style>
-<header><div class="head"><div class="brand"><strong>中药学</strong></div><span class="total" id="total"></span></div><nav class="subject-nav" aria-label="切换科目"><a href="../">组织学与胚胎学</a><a href="../tcm/" aria-current="page">中药学</a><a href="../immunology/">医学免疫学</a></nav></header>
+<header><div class="head"><div class="brand"><strong>中药学</strong></div><span class="total" id="total"></span></div><nav class="subject-nav" aria-label="切换科目"><a href="../">组织学与胚胎学</a><a href="../tcm/" aria-current="page">中药学</a><a href="../immunology/">医学免疫学</a><a class="sync-nav-link" href="#study-sync">登录同步</a></nav></header>
 <form id="study-sync" aria-label="跨浏览器同步">
   <label>同步邮箱 <input id="study-sync-email" type="email" autocomplete="email" required></label>
   <button id="study-sync-login" type="submit" disabled>发送登录链接</button>
