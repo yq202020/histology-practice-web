@@ -1,0 +1,797 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>生物化学刷题</title>
+<style>
+:root{color-scheme:light;--paper:#f6f4ee;--white:#fffdf8;--ink:#252b28;--muted:#5b6159;--line:#deded3;--accent:#244f40;--soft:#e8eee5;--red:#8f332b}
+*{box-sizing:border-box}
+body{margin:0;color:var(--ink);background:var(--paper);font:16px/1.65 "Source Sans 3","PingFang SC","Microsoft YaHei",sans-serif}
+[hidden]{display:none!important}
+header{border-bottom:1px solid var(--line);background:var(--white)}
+.head{max-width:1120px;margin:auto;padding:19px 30px;display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.brand strong{font:700 23px/1.3 "Songti SC","Noto Serif CJK SC","SimSun",serif;letter-spacing:.055em}
+.total,.quiet{color:var(--muted);font-size:14px}
+main{max-width:1120px;margin:36px auto;padding:0 30px;display:grid;grid-template-columns:218px minmax(0,1fr);gap:38px}
+aside h2{font-size:14px;margin:0 0 10px;color:var(--muted);font-weight:600}
+nav{display:grid;gap:2px}
+button,.jump{font:inherit;color:inherit;background:var(--white);border:1px solid var(--line);border-radius:4px;padding:8px 13px;min-height:42px}
+button{cursor:pointer}
+button:hover:not(:disabled){border-color:var(--accent)}
+button:disabled{cursor:default;opacity:.48}
+button:focus-visible,.jump:focus-visible,h1:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+nav button{display:flex;justify-content:space-between;align-items:center;border-color:transparent;background:transparent;text-align:left;gap:9px}
+nav button[aria-current=true]{background:var(--soft);color:var(--accent);font-weight:700;border-left-color:var(--accent)}
+nav span{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.tools{margin-top:18px;padding-top:12px;border-top:1px solid var(--line)}
+.chapter{width:100%;margin-bottom:10px}
+.panel{background:var(--white);border:1px solid var(--line);padding:27px 30px;min-width:0}
+.meta,.foot,.actions{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.meta{color:var(--muted);font-size:14px}
+.meta strong{font-weight:600;color:var(--accent)}
+progress{width:100%;height:4px;display:block;margin:13px 0 24px;accent-color:var(--accent)}
+h1{font:700 clamp(22px,3vw,30px)/1.5 "Songti SC","Noto Serif CJK SC","SimSun",serif;margin:0 0 19px;overflow-wrap:anywhere}
+.choices{display:grid;gap:7px;margin-bottom:18px}
+.choices button{text-align:left;min-height:46px;padding:9px 13px}
+.choices button.good{background:var(--soft);border-color:var(--accent)}
+.choices button.bad{background:#f7e8e1;color:var(--red);border-color:var(--red)}
+.choices button[aria-disabled=true]{cursor:default}
+.answer{white-space:pre-wrap;overflow-wrap:anywhere;background:var(--soft);padding:13px 15px;border-left:2px solid var(--accent);margin:14px 0}
+.answer strong{display:block;margin-bottom:4px}
+.answer .quiet{margin-top:8px}
+.foot{border-top:1px solid var(--line);margin-top:23px;padding-top:14px}
+.primary{background:var(--accent);color:white;border-color:var(--accent)}
+.actions{justify-content:flex-start}
+.jump{max-width:100%;padding:6px 8px}
+.review-head{margin-bottom:13px}
+.review-head h1{margin-bottom:2px}
+.review-list{list-style:none;padding:0;margin:18px 0 0;border-top:1px solid var(--line)}
+.review-list li{border-bottom:1px solid var(--line)}
+.review-list button{display:block;width:100%;text-align:left;border:0;border-radius:0;background:transparent;padding:13px 5px;overflow-wrap:anywhere}
+.review-list button:hover{background:var(--soft)}
+.review-list .quiet{display:block;margin-bottom:3px}
+@media(max-width:680px){
+  .head{padding:14px 16px}
+  .brand strong{font-size:20px}
+  main{margin:15px auto;padding:0 12px;display:block}
+  aside h2{display:none}
+  nav,.tools{display:flex;flex-wrap:wrap;gap:3px}
+  nav button{font-size:14px;padding:5px 9px;gap:5px;min-height:38px}
+  .tools{margin:6px 0 12px;padding-top:4px}
+  .panel{padding:16px 14px}
+  .foot,.actions{gap:6px}
+}
+.explanation{border-top:1px solid var(--line);margin-top:12px;padding-top:10px}
+.exam-form{max-width:440px}
+.exam-setting{display:grid;grid-template-columns:minmax(0,1fr) 65px 83px;gap:9px;align-items:center;padding:11px 0;border-bottom:1px solid var(--line)}
+.exam-setting input,.exam-question textarea{width:100%;font:inherit;color:inherit;background:var(--white);border:1px solid var(--line);border-radius:4px;padding:8px}
+.exam-setting input:focus-visible,.exam-question textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.exam-total{font-size:17px;font-weight:650;margin:0}
+.exam-form .exam-total{margin:16px 0}
+.exam-header{border-bottom:1px solid var(--line);padding-bottom:12px}
+.exam-header .quiet{margin:3px 0 0}
+.exam-section h2{font-size:17px;margin:24px 0 14px;color:var(--accent)}
+.exam-question{min-inline-size:0;margin:0 0 20px;padding:0 0 17px;border:0;border-bottom:1px solid var(--line)}
+.exam-question legend{font-weight:600;overflow-wrap:anywhere;padding:0 0 8px;width:100%}
+.exam-question textarea{resize:vertical;display:block}
+.exam-options{display:grid;gap:4px}
+.exam-option{display:flex;align-items:baseline;gap:7px;padding:5px 8px;overflow-wrap:anywhere}
+.exam-option input{accent-color:var(--accent);flex-shrink:0}
+.exam-option.correct{background:var(--soft)}
+.exam-option.incorrect{background:#f7e8e1;color:var(--red)}
+.exam-question .actions{margin:9px 0 0}
+@media(max-width:380px){.exam-setting{grid-template-columns:minmax(0,1fr) 56px 72px;gap:5px}}
+.subject-nav{max-width:1120px;margin:auto;padding:6px 30px;display:flex;gap:6px;flex-wrap:wrap}.subject-nav a{color:var(--accent,#244f40);padding:8px 12px;text-decoration:none;border-radius:8px;line-height:1.3}.subject-nav a[aria-current=page]{font-weight:700;background:var(--soft,#e8eee5)}.subject-nav a:focus-visible{outline:2px solid var(--accent,#244f40)}@media(max-width:680px){.subject-nav{padding-inline:12px}}
+body{font-family:system-ui,"PingFang SC","Microsoft YaHei",sans-serif}
+.head{padding-block:16px}
+main{column-gap:26px;margin-top:18px}
+button,.jump{border-radius:8px;min-height:44px}
+button[aria-pressed=true]{background:var(--soft);border-color:var(--accent);color:var(--accent);font-weight:650}
+button.primary{background:var(--accent);color:white}
+button.primary:hover:not(:disabled){filter:brightness(1.12)}
+.panel{border-radius:14px;box-shadow:0 4px 18px #25372d0b}
+.choices button{min-height:50px}
+#study-overview{max-width:1060px;margin:18px auto 0;padding:12px 16px;border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:10px;background:var(--white);display:flex;gap:12px;align-items:center;justify-content:space-between}
+#study-overview strong,#study-overview .quiet{display:block}
+.study-draft{display:block;color:var(--muted);font-size:14px;margin-bottom:16px}
+.study-draft textarea{display:block;width:100%;resize:vertical;margin-top:5px;padding:9px;border:1px solid var(--line);border-radius:8px;background:var(--white);color:var(--ink);font:inherit}
+.study-draft textarea:focus-visible,.study-checklist input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.study-checklist{margin:12px 0;border:1px solid var(--line);padding:8px 12px;border-radius:8px}
+.study-checklist label{display:flex;gap:8px;align-items:baseline;padding:5px 0}
+.study-checklist input{accent-color:var(--accent);flex:none}
+.confidence{margin-top:12px}
+.shortcuts{margin:10px 0 0}
+@media(max-width:1119px){#study-overview{margin-inline:30px}}
+@media(max-width:680px){
+  #study-overview{margin:10px 12px 0}
+  main{margin-top:10px}
+  nav button{min-height:44px}
+  .foot .actions:first-child{display:grid;grid-template-columns:auto minmax(0,1fr) auto;width:100%}
+  .shortcuts{display:none}
+}
+.ig-diagram{position:relative;width:min(100%,340px);height:232px;border:1px solid var(--line);border-radius:12px;background:var(--soft);margin:14px 0;color:var(--ink)}
+.ig-chain{position:absolute;display:block;border-radius:10px;background:var(--accent);height:9px;transform-origin:left center}
+.ig-chain.heavy-left{width:105px;left:50%;top:108px;transform:rotate(228deg)}
+.ig-chain.heavy-right{width:105px;left:50%;top:108px;transform:rotate(-48deg)}
+.ig-chain.light-left,.ig-chain.light-right{width:69px;background:#975820}
+.ig-chain.light-left{left:calc(50% - 24px);top:104px;transform:rotate(228deg)}
+.ig-chain.light-right{left:calc(50% + 24px);top:104px;transform:rotate(-48deg)}
+.ig-chain.stem{height:79px;width:14px;top:108px;left:calc(50% - 6px)}
+button.ig-marker{position:absolute;min-width:44px;padding:0;border-color:var(--accent);border-radius:50%;font-weight:700}
+button.ig-marker[aria-pressed=true]{background:var(--accent);color:white}
+.marker-1{left:calc(50% + 68px);top:63px}.marker-2{left:calc(50% + 22px);top:104px}
+.marker-3{left:calc(50% - 22px);top:177px}.marker-4{left:calc(50% - 96px);top:15px}
+.subject-nav .sync-nav-link{margin-left:auto;border:1px solid var(--accent,#244f40);font-weight:650}#study-sync:target{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px;scroll-margin-top:12px}@media(max-width:680px){.subject-nav .sync-nav-link{margin-left:0}}
+#study-sync{max-width:1120px;margin:12px auto 0;padding:0 30px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+#study-sync input{font:inherit;max-width:100%;padding:5px;border:1px solid var(--line);border-radius:4px}
+</style>
+<header><div class="head"><div class="brand"><strong>生物化学</strong></div><span class="total" id="total"></span></div><nav class="subject-nav" aria-label="切换科目"><a href="../">组织学与胚胎学</a><a href="../tcm/">中药学</a><a href="../immunology/">医学免疫学</a><a href="../physiology/">生理学</a><a href="../biochemistry/" aria-current="page">生物化学</a><a class="sync-nav-link" href="#study-sync">登录同步</a></nav></header>
+<form id="study-sync" aria-label="跨浏览器同步" data-subject="biochemistry"></form>
+<section id="study-overview" aria-label="今日复习"></section>
+<main>
+<aside><h2>练习范围</h2><select class="jump chapter" id="chapter" aria-label="按章节筛选"></select><nav id="types" aria-label="题型"></nav><nav class="tools" id="review" aria-label="复习范围"></nav></aside>
+<section class="panel" id="panel" aria-label="当前练习"></section>
+</main>
+<script type="application/json" id="bank">[{"id": "biochemistry-review-001", "number": 1, "chapter": "糖类与脂类化学", "question": "糖原的分支点由哪种糖苷键形成？", "source": "《生物化学期末复习讲义》PDF 第 2 页", "options": [["A", "A．β-1,6"], ["B", "B．β-1,4"], ["C", "C．α-1,4"], ["D", "D．α-1,6"]], "type": "单选题", "answer": "D", "explanation": "糖原直链为α-1,4连接，分支点为α-1,6连接。"}, {"id": "biochemistry-review-002", "number": 2, "chapter": "蛋白质化学", "question": "主要维系蛋白质α-螺旋的作用力是什么？", "source": "《生物化学期末复习讲义》PDF 第 2 页", "options": [["A", "A．肽链间二硫键"], ["B", "B．侧链之间的磷酸二酯键"], ["C", "C．主链之间的离子键"], ["D", "D．主链之间的氢键"]], "type": "单选题", "answer": "D", "explanation": "α-螺旋的稳定主要依靠主链羰基氧与酰胺氢之间的氢键。"}, {"id": "biochemistry-review-003", "number": 3, "chapter": "蛋白质化学", "question": "蛋白质的四层结构分别描述什么？", "source": "《生物化学期末复习讲义》PDF 第 2 页", "options": [], "type": "问答题", "answer": "一级结构描述氨基酸序列。二级结构描述主链局部构象。三级结构描述单条多肽链的整体三维构象。四级结构描述多个亚基的排列与相互作用。"}, {"id": "biochemistry-review-004", "number": 4, "chapter": "蛋白质化学", "question": "当溶液 pH 高于蛋白质等电点时，它通常向哪一极迁移？", "source": "《生物化学期末复习讲义》PDF 第 3 页", "options": [["A", "A．先向阴极再向阳极"], ["B", "B．始终不迁移"], ["C", "C．向阳极"], ["D", "D．向阴极"]], "type": "单选题", "answer": "C", "explanation": "pH高于pI时蛋白质净带负电，电泳迁向阳极。"}, {"id": "biochemistry-review-005", "number": 5, "chapter": "蛋白质化学", "question": "蛋白质变性", "source": "《生物化学期末复习讲义》PDF 第 3 页", "options": [], "type": "名词解释", "answer": "蛋白质天然空间构象受理化因素作用而改变，导致理化性质变化或生物活性降低。通常肽键保持完整。"}, {"id": "biochemistry-review-006", "number": 6, "chapter": "核酸化学", "question": "DNA 双链热变性时，260 nm 吸光度通常如何变化？", "source": "《生物化学期末复习讲义》PDF 第 4 页", "options": [["A", "A．降至零"], ["B", "B．降低"], ["C", "C．升高"], ["D", "D．不变"]], "type": "单选题", "answer": "C", "explanation": "双链解开、碱基堆叠减少，产生增色效应。"}, {"id": "biochemistry-review-007", "number": 7, "chapter": "酶", "question": "典型竞争性抑制对表观 Km 与 Vmax 有何影响？", "source": "《生物化学期末复习讲义》PDF 第 5 页", "options": [["A", "A．Km不变，Vmax降低"], ["B", "B．Km和Vmax均降低"], ["C", "C．Km降低，Vmax不变"], ["D", "D．Km升高，Vmax不变"]], "type": "单选题", "answer": "D", "explanation": "竞争性抑制可由增加底物浓度克服。"}, {"id": "biochemistry-review-008", "number": 8, "chapter": "酶", "question": "比较竞争性抑制与纯非竞争性抑制的表观 Km、Vmax 以及提高底物浓度的效果。", "source": "《生物化学期末复习讲义》PDF 第 5 页", "options": [], "type": "问答题", "answer": "竞争性抑制使表观Km升高，Vmax不变，提高底物浓度可减轻抑制。纯非竞争性抑制使Vmax降低，Km不变，增加底物难以克服。"}, {"id": "biochemistry-review-009", "number": 9, "chapter": "维生素", "question": "丙酮酸脱氢酶复合体中的 TPP 由哪种维生素衍生？", "source": "《生物化学期末复习讲义》PDF 第 6 页", "options": [["A", "A．维生素B₆"], ["B", "B．维生素B₂"], ["C", "C．维生素B₁"], ["D", "D．维生素B₁₂"]], "type": "单选题", "answer": "C", "explanation": "硫胺素即维生素B₁，其活性形式TPP参与α-酮酸脱羧。"}, {"id": "biochemistry-review-010", "number": 10, "chapter": "生物氧化", "question": "下列哪个呼吸链复合体传递电子但不泵质子？", "source": "《生物化学期末复习讲义》PDF 第 7 页", "options": [["A", "A．复合体Ⅲ"], ["B", "B．复合体Ⅱ"], ["C", "C．复合体Ⅳ"], ["D", "D．复合体Ⅰ"]], "type": "单选题", "answer": "B", "explanation": "复合体Ⅱ接受琥珀酸脱氢过程的电子并传给辅酶Q，但不泵质子。"}, {"id": "biochemistry-review-011", "number": 11, "chapter": "生物氧化", "question": "比较底物水平磷酸化与氧化磷酸化，并各举一例。", "source": "《生物化学期末复习讲义》PDF 第 7 页", "options": [], "type": "问答题", "answer": "底物水平磷酸化由高能底物直接提供能量形成ATP或GTP，如磷酸烯醇式丙酮酸生成丙酮酸。氧化磷酸化通过呼吸链建立质子梯度，再由ATP合酶合成ATP。"}, {"id": "biochemistry-review-012", "number": 12, "chapter": "糖代谢", "question": "糖酵解中磷酸果糖激酶-1 催化哪一步？", "source": "《生物化学期末复习讲义》PDF 第 8 页", "options": [["A", "A．乳酸生成丙酮酸"], ["B", "B．磷酸烯醇式丙酮酸生成丙酮酸"], ["C", "C．果糖-6-磷酸生成果糖-1,6-二磷酸"], ["D", "D．葡萄糖生成葡萄糖-6-磷酸"]], "type": "单选题", "answer": "C", "explanation": "该反应消耗ATP，是糖酵解重要调控步骤。"}, {"id": "biochemistry-review-013", "number": 13, "chapter": "糖代谢", "question": "以一分子葡萄糖为起点，概括糖酵解的场所、三个关键酶、净 ATP 以及缺氧时丙酮酸的去向。", "source": "《生物化学期末复习讲义》PDF 第 8 页", "options": [], "type": "问答题", "answer": "过程发生在胞质。关键酶为己糖激酶或葡萄糖激酶、磷酸果糖激酶-1及丙酮酸激酶。净得2个ATP。缺氧时丙酮酸可还原为乳酸，并再生NAD⁺。"}, {"id": "biochemistry-review-014", "number": 14, "chapter": "糖代谢", "question": "磷酸戊糖途径的两项典型产物是什么？", "source": "《生物化学期末复习讲义》PDF 第 9 页", "options": [["A", "A．NADPH和核糖-5-磷酸"], ["B", "B．尿素和NADPH"], ["C", "C．FADH₂和乳酸"], ["D", "D．NADH和乙酰CoA"]], "type": "单选题", "answer": "A", "explanation": "NADPH参与还原合成和抗氧化，核糖-5-磷酸是核苷酸合成的原料。"}, {"id": "biochemistry-review-015", "number": 15, "chapter": "糖代谢", "question": "为什么肝糖原可用于补充血糖，而骨骼肌糖原主要供自身使用？", "source": "《生物化学期末复习讲义》PDF 第 9 页", "options": [], "type": "问答题", "answer": "肝具有葡萄糖-6-磷酸酶，可将葡萄糖-6-磷酸转为游离葡萄糖并输出。骨骼肌缺乏这一释放血糖的能力，糖原分解产物主要进入本地糖代谢。"}, {"id": "biochemistry-review-016", "number": 16, "chapter": "脂类代谢", "question": "脂肪酸 β-氧化一轮的反应顺序是什么？", "source": "《生物化学期末复习讲义》PDF 第 10 页", "options": [["A", "A．水合、脱氢、硫解、再脱氢"], ["B", "B．脱羧、水合、脱氢、硫解"], ["C", "C．硫解、水合、脱氢、再脱氢"], ["D", "D．脱氢、水合、再脱氢、硫解"]], "type": "单选题", "answer": "D", "explanation": "两次脱氢分别还原FAD和NAD⁺，硫解切下乙酰CoA。"}, {"id": "biochemistry-review-017", "number": 17, "chapter": "脂类代谢", "question": "软脂酰 CoA 完全 β-氧化需要几轮，生成几个乙酰 CoA？", "source": "《生物化学期末复习讲义》PDF 第 10 页", "options": [["A", "A．8轮，7个"], ["B", "B．8轮，8个"], ["C", "C．7轮，7个"], ["D", "D．7轮，8个"]], "type": "单选题", "answer": "D", "explanation": "16碳饱和脂酰CoA生成8个乙酰CoA，末轮一次产生两个。"}, {"id": "biochemistry-review-018", "number": 18, "chapter": "脂类代谢", "question": "运输膳食来源三酰甘油的主要脂蛋白是什么？", "source": "《生物化学期末复习讲义》PDF 第 11 页", "options": [["A", "A．VLDL"], ["B", "B．HDL"], ["C", "C．乳糜微粒"], ["D", "D．LDL"]], "type": "单选题", "answer": "C", "explanation": "乳糜微粒主要运输外源性三酰甘油，VLDL主要运输肝合成的内源性三酰甘油。"}, {"id": "biochemistry-review-019", "number": 19, "chapter": "脂类代谢", "question": "比较乳糜微粒、VLDL、LDL和HDL的主要运输功能。", "source": "《生物化学期末复习讲义》PDF 第 11 页", "options": [], "type": "问答题", "answer": "乳糜微粒运输膳食三酰甘油。VLDL运输肝合成的三酰甘油。LDL将胆固醇输送到外周组织。HDL参与胆固醇逆向转运。"}, {"id": "biochemistry-review-020", "number": 20, "chapter": "脂类代谢", "question": "酮体包括哪三种物质？为什么肝能生成却难以利用酮体？", "source": "《生物化学期末复习讲义》PDF 第 11 页", "options": [], "type": "问答题", "answer": "酮体包括乙酰乙酸、β-羟丁酸和丙酮。肝线粒体生成酮体，但缺乏利用乙酰乙酸所需的琥珀酰CoA∶乙酰乙酸CoA转移酶。"}, {"id": "biochemistry-review-021", "number": 21, "chapter": "氨基酸代谢", "question": "氨基转移酶常需哪种辅酶？", "source": "《生物化学期末复习讲义》PDF 第 12 页", "options": [["A", "A．四氢叶酸"], ["B", "B．TPP"], ["C", "C．磷酸吡哆醛"], ["D", "D．生物素"]], "type": "单选题", "answer": "C", "explanation": "磷酸吡哆醛是维生素B₆的活性形式，参与氨基转移。"}, {"id": "biochemistry-review-022", "number": 22, "chapter": "氨基酸代谢", "question": "尿素的两个氮原子分别来自哪里？", "source": "《生物化学期末复习讲义》PDF 第 12 页", "options": [["A", "A．尿酸和丙氨酸"], ["B", "B．谷氨酰胺和甘氨酸"], ["C", "C．游离氨和天冬氨酸"], ["D", "D．肌酐和谷氨酸"]], "type": "单选题", "answer": "C", "explanation": "一个氮经氨基甲酰磷酸进入，另一个由天冬氨酸提供。"}, {"id": "biochemistry-review-023", "number": 23, "chapter": "氨基酸代谢", "question": "从骨骼肌到肝，葡萄糖–丙氨酸循环怎样转运氨基氮？", "source": "《生物化学期末复习讲义》PDF 第 13 页", "options": [], "type": "问答题", "answer": "骨骼肌将氨基转给丙酮酸，生成丙氨酸运到肝。肝将丙氨酸转回丙酮酸，氮可进入尿素合成，丙酮酸可用于糖异生。"}, {"id": "biochemistry-review-024", "number": 24, "chapter": "核苷酸代谢", "question": "人体嘌呤核苷酸分解代谢的主要终产物是什么？", "source": "《生物化学期末复习讲义》PDF 第 14 页", "options": [["A", "A．尿素"], ["B", "B．尿酸"], ["C", "C．胆红素"], ["D", "D．肌酐"]], "type": "单选题", "answer": "B", "explanation": "嘌呤经次黄嘌呤、黄嘌呤等中间步骤转化为尿酸。"}, {"id": "biochemistry-review-025", "number": 25, "chapter": "复制与表达", "question": "DNA 复制中，新链延伸方向是什么？", "source": "《生物化学期末复习讲义》PDF 第 15 页", "options": [["A", "A．前导链和后随链方向相反"], ["B", "B．3′→5′"], ["C", "C．5′→3′"], ["D", "D．由两端同时向中间延伸"]], "type": "单选题", "answer": "C", "explanation": "DNA聚合酶将核苷酸加到新链3′端，两条新链均按5′→3′延伸。"}, {"id": "biochemistry-review-026", "number": 26, "chapter": "复制与表达", "question": "遗传密码的简并性", "source": "《生物化学期末复习讲义》PDF 第 16 页", "options": [], "type": "名词解释", "answer": "同一种氨基酸通常可以由两个或多个不同密码子编码。"}, {"id": "biochemistry-review-027", "number": 27, "chapter": "肝胆生化", "question": "胆红素在肝内主要与什么物质结合？", "source": "《生物化学期末复习讲义》PDF 第 17 页", "options": [["A", "A．丙酮酸"], ["B", "B．乳酸"], ["C", "C．磷酸肌酸"], ["D", "D．葡萄糖醛酸"]], "type": "单选题", "answer": "D", "explanation": "葡萄糖醛酸结合使胆红素水溶性增加，有利于经胆汁排出。"}, {"id": "biochemistry-review-028", "number": 28, "chapter": "肝胆生化", "question": "比较溶血性和胆汁淤积性黄疸时，血中主要升高的胆红素及尿胆红素变化。", "source": "《生物化学期末复习讲义》PDF 第 17 页", "options": [], "type": "问答题", "answer": "溶血时胆红素生成增加，主要升高未结合胆红素，尿胆红素一般阴性。胆汁淤积时结合胆红素排泄受阻，血中结合胆红素升高，尿胆红素可呈阳性。"}, {"id": "biochemistry-review-029", "number": 29, "chapter": "水盐酸碱与实验技术", "question": "缓冲对 HCO₃⁻/H₂CO₃ 中，主要调节呼出 CO₂ 的器官是什么？", "source": "《生物化学期末复习讲义》PDF 第 18 页", "options": [["A", "A．脾"], ["B", "B．肺"], ["C", "C．胰腺"], ["D", "D．肝"]], "type": "单选题", "answer": "B", "explanation": "肺通过通气调节CO₂，肾调节HCO₃⁻重吸收及净酸排泄。"}, {"id": "biochemistry-review-030", "number": 30, "chapter": "维生素", "question": "解释维生素A缺乏为什么会先影响暗处视力。", "source": "《生物化学期末复习讲义》PDF 第 6 页", "options": [], "type": "问答题", "answer": "视杆细胞的视紫红质含11-顺视黄醛。维生素A不足会影响视紫红质生成或再生，降低视杆细胞对暗光的敏感性。"}, {"id": "biochemistry-review-031", "number": 31, "chapter": "生物氧化", "question": "NADH与琥珀酸提供的电子分别从哪个呼吸链复合体进入？之后在哪个载体汇合？", "source": "《生物化学期末复习讲义》PDF 第 7 页", "options": [], "type": "问答题", "answer": "NADH从复合体Ⅰ进入，琥珀酸氧化产生的电子经复合体Ⅱ进入。两路电子交给辅酶Q，再经复合体Ⅲ、细胞色素c和复合体Ⅳ，最终传给氧。"}, {"id": "biochemistry-review-032", "number": 32, "chapter": "生物氧化", "question": "呼吸链仍能传递电子，但线粒体内膜质子梯度被消散，ATP合成会怎样？", "source": "《生物化学期末复习讲义》PDF 第 7 页", "options": [["A", "A．下降"], ["B", "B．完全转由复合体Ⅱ合成"], ["C", "C．升高"], ["D", "D．不受影响"]], "type": "单选题", "answer": "A", "explanation": "质子梯度为ATP合酶提供驱动力，梯度降低后氧化磷酸化效率下降。"}, {"id": "biochemistry-review-033", "number": 33, "chapter": "糖代谢", "question": "乳酸循环（Cori循环）", "source": "《生物化学期末复习讲义》PDF 第 9 页", "options": [], "type": "名词解释", "answer": "外周组织产生的乳酸运往肝，在肝中经糖异生转成葡萄糖，再释放入血供外周组织利用的过程。"}, {"id": "biochemistry-review-034", "number": 34, "chapter": "脂类代谢", "question": "按每个NADH折合2.5 ATP、每个FADH₂折合1.5 ATP、每个乙酰CoA完全氧化折合10 ATP计算，游离软脂酸完全氧化净得多少ATP？", "source": "《生物化学期末复习讲义》PDF 第 10 页", "options": [["A", "A．114 ATP"], ["B", "B．108 ATP"], ["C", "C．106 ATP"], ["D", "D．96 ATP"]], "type": "单选题", "answer": "C", "explanation": "7轮β-氧化得7×（2.5＋1.5），8个乙酰CoA得80，游离脂肪酸活化耗2个ATP当量。合计106。"}, {"id": "biochemistry-review-035", "number": 35, "chapter": "肝胆生化", "question": "胆汁酸肠肝循环", "source": "《生物化学期末复习讲义》PDF 第 17 页", "options": [], "type": "名词解释", "answer": "胆汁酸由肝经胆汁分泌入肠，多数在回肠末端重吸收，经门静脉回到肝，并再次分泌入胆汁。"}, {"id": "bio-practice-extension-001", "number": 36, "chapter": "脂类代谢", "question": "血浆中由卵磷脂提供脂酰基、催化胆固醇酯化的是哪种酶？", "source": "《生物化学试卷12套59页》 · 第1套填空4", "options": [["A", "A．柠檬酸合酶"], ["B", "B．激素敏感性脂肪酶"], ["C", "C．脂蛋白脂肪酶"], ["D", "D．LCAT"]], "type": "单选题", "answer": "D", "explanation": "LCAT即卵磷脂胆固醇酰基转移酶，参与血浆脂蛋白中胆固醇酯化。"}, {"id": "bio-practice-extension-002", "number": 37, "chapter": "糖代谢", "question": "糖原合成时直接提供葡萄糖基的活化底物是什么？", "source": "《生物化学试卷12套59页》 · 第1套填空7", "options": [["A", "A．乳酸"], ["B", "B．UDP-葡萄糖"], ["C", "C．葡萄糖-6-磷酸"], ["D", "D．游离葡萄糖"]], "type": "单选题", "answer": "B", "explanation": "糖原合酶利用UDP-葡萄糖延长糖原链。"}, {"id": "bio-practice-extension-003", "number": 38, "chapter": "糖代谢", "question": "三羧酸循环第一步中，乙酰CoA与草酰乙酸缩合生成什么？", "source": "《生物化学试卷12套59页》 · 第1套填空8", "options": [["A", "A．琥珀酸"], ["B", "B．柠檬酸"], ["C", "C．异柠檬酸"], ["D", "D．延胡索酸"]], "type": "单选题", "answer": "B", "explanation": "柠檬酸合酶催化此缩合反应。"}, {"id": "bio-practice-extension-004", "number": 39, "chapter": "糖代谢", "question": "三羧酸循环中发生氧化脱羧的两步分别是什么？", "source": "《生物化学试卷12套59页》 · 第1套填空8", "options": [], "type": "问答题", "answer": "异柠檬酸氧化脱羧生成α-酮戊二酸。α-酮戊二酸氧化脱羧生成琥珀酰CoA。两步各生成CO₂和NADH。"}, {"id": "bio-practice-extension-005", "number": 40, "chapter": "核酸化学", "question": "核酸分子杂交依赖什么基本原理？", "source": "《生物化学试卷12套59页》 · 第1套填空3", "options": [["A", "A．互补碱基配对"], ["B", "B．抗原抗体结合"], ["C", "C．氨基酸密码子的简并性"], ["D", "D．ATP水解"]], "type": "单选题", "answer": "A", "explanation": "有互补序列的核酸单链在适当条件下可以配对。"}, {"id": "bio-practice-extension-006", "number": 41, "chapter": "糖代谢", "question": "磷酸戊糖途径产生的NADPH，为什么对成熟红细胞的抗氧化能力重要？", "source": "《生物化学试卷12套59页》 · 第1套问答", "options": [], "type": "问答题", "answer": "NADPH使谷胱甘肽还原酶得以维持还原型谷胱甘肽。还原型谷胱甘肽参与清除过氧化物，有助于保护血红蛋白和细胞膜。"}, {"id": "bio-practice-extension-007", "number": 42, "chapter": "脂类代谢", "question": "胆固醇可作为下列哪类物质的合成原料？", "source": "《生物化学试卷12套59页》 · 第2套判断8", "options": [["A", "A．血红素"], ["B", "B．类固醇激素"], ["C", "C．糖原"], ["D", "D．嘌呤核苷酸"]], "type": "单选题", "answer": "B", "explanation": "胆固醇可转化为类固醇激素和胆汁酸等。"}, {"id": "bio-practice-extension-008", "number": 43, "chapter": "生物氧化", "question": "糖酵解和三羧酸循环主要分别在细胞的哪一部位进行？", "source": "《生物化学试卷12套59页》 · 第1套填空5", "options": [], "type": "问答题", "answer": "糖酵解在胞质，三羧酸循环主要在线粒体基质。琥珀酸脱氢酶位于线粒体内膜。"}]</script>
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.js" integrity="sha384-rwykjmWNwVxboyFmvK9OXN0wj9hnMHA2aAHtits54DuACyCq0M2PrSNxhRb+hvXT" crossorigin="anonymous"></script>
+<script defer src="../study-sync.js?v=988d8884e09a" integrity="sha384-kMGF9VBQDb4QvyLklmIb8erLq9YsENCTRLAshYD1UTmElmwWYwOZkARfm76z5yt0" crossorigin="anonymous"></script>
+<script>
+'use strict';
+const bank = JSON.parse(document.querySelector('#bank').textContent);
+const byId = new Map(bank.map(q => [q.id, q]));
+const storageKey = 'biochemistry-study-v1';
+let saved;
+try { saved = JSON.parse(localStorage.getItem(storageKey) || '{}') || {}; } catch { saved = {}; }
+const results = saved.results || {};
+let filter = '全部题目';
+let mistakeList = false;
+let assessment;
+let order = bank.map(q => q.id);
+let current = byId.has(saved.current) ? saved.current : order[0];
+let revealed = false;
+let selected = '';
+let storageFailed = false;
+const panel = document.querySelector('#panel');
+const types = ["全部题目", "单选题", "名词解释", "问答题"];
+const reviews = ['模拟试卷', '错题集', '收藏'];
+const inType = q => filter === '全部题目' || (filter === '错题集' ? results[q.id]?.wrong : filter === '收藏' ? results[q.id]?.star : q.type === filter);
+const chapterSelect = document.querySelector('#chapter');
+for (const chapter of ['全部章节', ...new Set(bank.map(q => q.chapter))]) {
+  const option = node('option', chapter);
+  option.value = chapter;
+  chapterSelect.append(option);
+}
+const collection = q => (filter === '错题集' || chapterSelect.value === '全部章节' || q.chapter === chapterSelect.value) && inType(q);
+chapterSelect.addEventListener('change', () => setFilter('全部题目'));
+let queue = order.filter(id => collection(byId.get(id)));
+document.querySelector('#total').textContent = '共 ' + bank.length + ' 题';
+
+function node(tag, text, className) {
+  const element = document.createElement(tag);
+  if (text != null) element.textContent = text;
+  if (className) element.className = className;
+  return element;
+}
+function button(label, action, className) {
+  const element = node('button', label, className);
+  element.type = 'button';
+  element.addEventListener('click', action);
+  return element;
+}
+function save() {
+  try { localStorage.setItem(storageKey, JSON.stringify({results, current})); }
+  catch { storageFailed = true; }
+}
+function go(id, focus = false) {
+  current = id;
+  revealed = false;
+  selected = '';
+  assessment = undefined;
+  save();
+  if (id) window.queueStudyEvent?.({id, cursor: true});
+  render();
+  if (focus) panel.querySelector('h1')?.focus();
+}
+function setFilter(value) {
+  if (value === '模拟试卷') {
+    openExam();
+    return;
+  }
+  if (value === '错题集') {
+    openMistakes();
+    return;
+  }
+  mistakeList = false;
+  filter = value;
+  queue = order.filter(id => collection(byId.get(id)));
+  go(queue.includes(current) ? current : queue[0], true);
+}
+function renderNav() {
+  for (const [selector, labels] of [['#types', types], ['#review', reviews]]) {
+    const nav = document.querySelector(selector);
+    nav.replaceChildren();
+    for (const label of labels) {
+      const count = bank.filter(q => (label === '错题集' || chapterSelect.value === '全部章节' || q.chapter === chapterSelect.value) && (label === '全部题目' || q.type === label || (label === '错题集' && results[q.id]?.wrong) || (label === '收藏' && results[q.id]?.star))).length;
+      const control = button(label, () => setFilter(label));
+      if (label !== '模拟试卷') control.append(node('span', count));
+      control.setAttribute('aria-current', String(label === filter));
+      nav.append(control);
+    }
+  }
+}
+function record(q, changes) {
+  results[q.id] = {...results[q.id], ...changes};
+  save();
+  window.queueStudyEvent?.({id: q.id, changes});
+}
+function update(focusId) {
+  render();
+  if (focusId) document.getElementById(focusId)?.focus();
+}
+function shuffle() {
+  const shuffled = [...order];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  order = shuffled;
+  queue = order.filter(id => collection(byId.get(id)));
+  go(queue[0], true);
+}
+function openMistakes() {
+  filter = '错题集';
+  mistakeList = true;
+  render();
+  panel.querySelector('h1')?.focus();
+}
+
+function renderMistakes() {
+  const ids = order.filter(id => results[id]?.wrong);
+  const header = node('div', null, 'review-head');
+  const title = node('h1', '错题集');
+  title.tabIndex = -1;
+  header.append(title, node('div', '待重练 ' + ids.length + ' 题', 'quiet'));
+  panel.append(header);
+  if (!ids.length) {
+    panel.append(node('p', '选择题答错或主观题标记为错题后，会显示在这里。', 'quiet'));
+    return;
+  }
+
+  function retry(id) {
+    mistakeList = false;
+    queue = ids;
+    go(id, true);
+  }
+  panel.append(button('开始重练', () => retry(ids[0]), 'primary'));
+  const list = node('ul', null, 'review-list');
+  for (const id of ids) {
+    const q = byId.get(id);
+    const entry = node('li');
+    const open = button(null, () => retry(id));
+    const wrongCount = results[id].wrongCount || 1;
+    open.append(node('span', q.chapter + ' · ' + q.type + ' · 错 ' + wrongCount + ' 次', 'quiet'),
+                node('span', q.question));
+    entry.append(open);
+    list.append(entry);
+  }
+  panel.append(list);
+}
+
+function recordAttempt(q, wrong) {
+  const previous = results[q.id];
+  const count = previous?.wrongCount || Number(Boolean(previous?.wrong));
+  record(q, {done: true, wrong, wrongCount: count + Number(wrong), ...reviewPatch(q, wrong ? 'retry' : 'known')});
+}
+
+const examKey = storageKey + '-exam';
+let exam = null;
+try {
+  const draft = JSON.parse(localStorage.getItem(examKey) || 'null');
+  if (draft?.items?.length && draft.items.every(item => byId.has(item.id))) exam = draft;
+} catch {}
+
+const examDefaults = {
+  '单选题': [20, 2],
+  '填空题': [5, 2],
+  '名词解释': [5, 4],
+  '问答题': [types.includes('填空题') ? 3 : 4, 10],
+  '功效速记': [0, 4],
+};
+const examPools = Object.fromEntries(types.slice(1).map(kind => [
+  kind, bank.filter(q => q.type === kind && q.answer),
+]));
+let configuringExam = false;
+
+function saveExam() {
+  try { localStorage.setItem(examKey, JSON.stringify(exam)); }
+  catch { storageFailed = true; }
+}
+
+function openExam() {
+  filter = '模拟试卷';
+  mistakeList = false;
+  configuringExam = !exam;
+  render();
+  panel.querySelector('h1')?.focus();
+}
+
+function renderExam() {
+  const title = node('h1', '模拟试卷');
+  title.tabIndex = -1;
+  panel.append(title);
+  if (configuringExam) {
+    renderExamSetup();
+    return;
+  }
+  renderExamPaper();
+  if (storageFailed) panel.append(node('p', '浏览器未允许保存试卷，本次作答仅在当前页面保留。', 'quiet'));
+}
+
+function renderExamSetup() {
+  const form = node('form', null, 'exam-form');
+  const countInputs = [];
+  for (const kind of types.slice(1)) {
+    const pool = examPools[kind];
+    const [defaultCount, points] = examDefaults[kind];
+    const label = node('label', null, 'exam-setting');
+    label.append(node('span', kind + ' · 每题 ' + points + ' 分', 'exam-setting-name'));
+    const input = node('input');
+    input.type = 'number';
+    input.min = '0';
+    input.max = String(pool.length);
+    input.step = '1';
+    input.required = true;
+    input.value = String(Math.min(defaultCount, pool.length));
+    label.append(input, node('small', '可选 ' + pool.length + ' 题', 'quiet'));
+    form.append(label);
+    countInputs.push({kind, input, points});
+  }
+  const targeted = node('input');
+  targeted.type = 'checkbox';
+  const targetedLabel = node('label');
+  targetedLabel.append(targeted, node('span', ' 优先练错题、模糊题和到期题'));
+  form.append(targetedLabel);
+  const total = node('p', null, 'exam-total');
+  total.setAttribute('aria-live', 'polite');
+  const submit = node('button', '生成试卷', 'primary');
+  submit.type = 'submit';
+  function summarize() {
+    const count = countInputs.reduce((sum, row) => sum + Number(row.input.value), 0);
+    const score = countInputs.reduce((sum, row) => sum + Number(row.input.value) * row.points, 0);
+    total.textContent = '共 ' + count + ' 题，满分 ' + score + ' 分';
+    submit.disabled = !count;
+  }
+  form.addEventListener('input', summarize);
+  form.addEventListener('submit', event => {
+    event.preventDefault();
+    const items = [];
+    for (const {kind, input, points} of countInputs) {
+      const pool = chooseExamPool(kind, targeted.checked);
+      const count = Number(input.value);
+      if (!Number.isInteger(count) || count < 0 || count > pool.length) return;
+      for (let i = 0; i < count; i++) {
+        items.push({id:pool[i].id, points, response:'', score:null});
+      }
+    }
+    if (!items.length) return;
+    exam = {items, submitted:false};
+    configuringExam = false;
+    saveExam();
+    render();
+    panel.querySelector('h1')?.focus();
+  });
+  summarize();
+  const actions = node('div', null, 'actions');
+  actions.append(submit);
+  if (exam) actions.append(button('返回当前试卷', () => {configuringExam = false; render();}));
+  form.append(total, actions);
+  panel.append(form);
+}
+
+function renderExamPaper() {
+  const maximum = exam.items.reduce((sum, item) => sum + item.points, 0);
+  const scoreStatus = node('p', null, 'exam-total');
+  scoreStatus.setAttribute('aria-live', 'polite');
+  const outstanding = node('p', null, 'quiet');
+  function refreshScore() {
+    if (exam.submitted) {
+      const score = exam.items.reduce((sum, item) => sum + (item.score ?? 0), 0);
+      const pending = exam.items.filter(item => item.score === null).length;
+      scoreStatus.textContent = '已得 ' + score + ' / ' + maximum + ' 分';
+      outstanding.textContent = pending ? '还有 ' + pending + ' 道主观题待自评。' : '评分完成。';
+    } else {
+      const answered = exam.items.filter(item => item.response.trim()).length;
+      scoreStatus.textContent = '已作答 ' + answered + ' / ' + exam.items.length + ' 题 · 满分 ' + maximum + ' 分';
+      outstanding.textContent = '交卷后显示答案和解析。';
+    }
+  }
+  const header = node('div', null, 'exam-header');
+  header.append(scoreStatus, outstanding);
+  panel.append(header);
+  refreshScore();
+
+  let lastType;
+  let section;
+  for (const [index, item] of exam.items.entries()) {
+    const q = byId.get(item.id);
+    if (q.type !== lastType) {
+      lastType = q.type;
+      section = node('section', null, 'exam-section');
+      section.append(node('h2', q.type + ' · 每题 ' + item.points + ' 分'));
+      panel.append(section);
+    }
+    const card = node('fieldset', null, 'exam-question');
+    card.append(node('legend', (index + 1) + '．' + q.question));
+    if (q.options.length) {
+      const options = node('div', null, 'exam-options');
+      for (const [key, value] of q.options) {
+        const label = node('label', null, 'exam-option');
+        const input = node('input');
+        input.type = 'radio';
+        input.name = 'exam-q-' + index;
+        input.value = key;
+        input.checked = item.response === key;
+        input.disabled = exam.submitted;
+        input.addEventListener('change', () => {
+          item.response = key;
+          saveExam();
+          refreshScore();
+        });
+        if (exam.submitted && key === q.answer) label.classList.add('correct');
+        if (exam.submitted && key === item.response && key !== q.answer) label.classList.add('incorrect');
+        label.append(input, node('span', value));
+        options.append(label);
+      }
+      card.append(options);
+    } else {
+      const response = node('textarea');
+      response.rows = q.type === '填空题' ? 2 : 4;
+      response.value = item.response;
+      response.readOnly = exam.submitted;
+      response.placeholder = '输入你的答案';
+      response.setAttribute('aria-label', '第 ' + (index + 1) + ' 题作答');
+      response.addEventListener('input', () => {
+        item.response = response.value;
+        saveExam();
+        refreshScore();
+      });
+      card.append(response);
+    }
+    if (exam.submitted) renderExamAnswer(card, item, q, index, refreshScore);
+    section.append(card);
+  }
+  const foot = node('div', null, 'foot');
+  if (exam.submitted) {
+    foot.append(button('重新组卷', () => {
+      configuringExam = true;
+      render();
+      panel.querySelector('h1')?.focus();
+    }, 'primary'));
+  } else {
+    foot.append(button('交卷', () => {
+      const unanswered = exam.items.filter(item => !item.response.trim()).length;
+      if (unanswered && !window.confirm('还有 ' + unanswered + ' 题未作答。现在交卷吗？')) return;
+      for (const item of exam.items) {
+        const q = byId.get(item.id);
+        if (q.options.length) {
+          const correct = item.response === q.answer;
+          item.score = correct ? item.points : 0;
+          if (item.response) recordAttempt(q, !correct);
+        } else if (!item.response.trim()) {
+          item.score = 0;
+        }
+      }
+      exam.submitted = true;
+      saveExam();
+      render();
+      panel.querySelector('h1')?.focus();
+    }, 'primary'));
+    foot.append(button('重新组卷', () => {
+      configuringExam = true;
+      render();
+      panel.querySelector('h1')?.focus();
+    }));
+  }
+  panel.append(foot);
+  panel.append(node('p', '键盘：← → 切题 · 空格看答案 · 数字键选答案', 'quiet shortcuts'));
+}
+
+function renderExamAnswer(card, item, q, index, refreshScore) {
+  const answer = node('div', null, 'answer');
+  const text = q.options.find(([key]) => key === q.answer)?.[1] || q.answer;
+  answer.append(node('strong', '参考答案'), node('div', text));
+  if (q.explanation) answer.append(node('div', q.explanation, 'explanation'));
+  if (q.source) answer.append(node('div', '来源 · ' + q.source, 'quiet'));
+  card.append(answer);
+  if (q.options.length || !item.response.trim()) {
+    card.append(node('p', '得分 ' + item.score + ' / ' + item.points, 'quiet'));
+    return;
+  }
+  const label = node('label', null, 'actions');
+  const select = node('select', null, 'jump');
+  select.setAttribute('aria-label', '第 ' + (index + 1) + ' 题自评得分');
+  const pending = node('option', '请选择得分');
+  pending.value = '';
+  pending.disabled = true;
+  select.append(pending);
+  for (let n = 0; n <= item.points; n++) {
+    const option = node('option', n + ' 分');
+    option.value = String(n);
+    select.append(option);
+  }
+  select.value = item.score === null ? '' : String(item.score);
+  select.addEventListener('change', () => {
+    const firstScore = item.score === null;
+    item.score = Number(select.value);
+    const wrong = item.score < item.points;
+    if (firstScore) recordAttempt(q, wrong);
+    else record(q, {done:true, wrong});
+    saveExam();
+    refreshScore();
+  });
+  label.append(node('span', '自评（满分 ' + item.points + ' 分）'), select);
+  card.append(label);
+}
+
+function render() {
+  renderNav();
+  showReviewSummary();
+  panel.replaceChildren();
+  if (filter === '模拟试卷') {
+    renderExam();
+    return;
+  }
+  if (mistakeList) {
+    renderMistakes();
+    return;
+  }
+  const q = byId.get(current);
+  const index = queue.indexOf(current);
+  if (!q || index < 0) {
+    panel.append(node('h1', filter === '错题集' ? '暂无错题' : filter === '收藏' ? '暂无收藏' : '本章暂无该题型'));
+    panel.append(button('返回全部题目', () => setFilter('全部题目'), 'primary'));
+    return;
+  }
+  const meta = node('div', null, 'meta');
+  const completed = queue.filter(id => results[id]?.done).length;
+  meta.append(node('strong', q.chapter + ' · ' + q.type), node('span', '当前 ' + (index + 1) + ' / ' + queue.length + ' · 已练 ' + completed));
+  const progress = node('progress');
+  progress.max = queue.length;
+  progress.value = completed;
+  progress.setAttribute('aria-label', '已练习题数');
+  const title = node('h1', q.question);
+  title.tabIndex = -1;
+  panel.append(meta, progress, title);
+  if (!q.options.length && q.answer) panel.append(answerDraft(q));
+  if (q.options.length) {
+    const choices = node('div', null, 'choices');
+    for (const [key, label] of q.options) {
+      const control = button(label, () => {
+        if (selected) return;
+        selected = key;
+        revealed = true;
+        if (q.answer) assessment = key === q.answer ? 'known' : 'retry';
+        if (q.answer) recordAttempt(q, key !== q.answer);
+        update('choice-' + key);
+      });
+      control.id = 'choice-' + key;
+      if (selected) control.setAttribute('aria-disabled', 'true');
+      if (revealed && key === q.answer) control.className = 'good';
+      else if (revealed && key === selected && q.answer) control.className = 'bad';
+      choices.append(control);
+    }
+    panel.append(choices);
+  }
+  const actions = node('div', null, 'actions');
+  const toggle = button(revealed ? '收起答案' : '查看答案', () => {
+    revealed = !revealed;
+    update('answer-toggle');
+  }, 'primary');
+  toggle.id = 'answer-toggle';
+  toggle.setAttribute('aria-expanded', String(revealed));
+  toggle.setAttribute('aria-controls', 'answer');
+  const star = button(results[q.id]?.star ? '取消收藏' : '收藏本题', () => {
+    record(q, {star:!results[q.id]?.star});
+    update('star');
+  });
+  star.id = 'star';
+  actions.append(toggle, star);
+  panel.append(actions);
+  const answer = node('div', null, 'answer');
+  answer.id = 'answer';
+  answer.hidden = !revealed;
+  answer.setAttribute('aria-live', 'polite');
+  if (revealed) {
+    const heading = selected && q.answer ? (selected === q.answer ? '答对了' : '答错了') : q.reference ? '题目辨析' : q.options.length ? '参考答案' : '参考答案与要点';
+    const answerText = q.options.find(([key]) => key === q.answer)?.[1] || q.reference || q.answer || '原表未提供答案';
+    answer.append(node('strong', heading), node('div', answerText));
+    if (q.note) answer.append(node('div', q.note));
+    if (q.explanation) {
+      const explanation = node('div', null, 'explanation');
+      explanation.append(node('strong', '解析'), node('div', q.explanation));
+      answer.append(explanation);
+    }
+    answer.append(node('div', '来源 · ' + q.source, 'quiet'));
+  }
+  panel.append(answer);
+  if (revealed && (q.answer || q.reference)) {
+    if (!q.options.length) {
+      const checklist = answerChecklist(q, q.answer || q.reference);
+      if (checklist) panel.append(checklist);
+    }
+    panel.append(confidenceControls(q));
+  }
+  const foot = node('div', null, 'foot');
+  const previous = button('上一题', () => go(queue[index - 1], true));
+  previous.id = "previous-question";
+  previous.disabled = index === 0;
+  const next = button('下一题', () => go(queue[index + 1], true));
+  next.id = "next-question";
+  next.disabled = index === queue.length - 1;
+  const jump = node('select', null, 'jump');
+  jump.setAttribute('aria-label', '跳到指定题目');
+  queue.forEach((id, i) => {
+    const item = byId.get(id);
+    const option = node('option', '第 ' + (i + 1) + ' 题 · ' + item.type);
+    option.value = id;
+    jump.append(option);
+  });
+  jump.value = current;
+  jump.addEventListener('change', () => go(jump.value, true));
+  const paging = node('div', null, 'actions');
+  paging.append(previous, jump, next);
+  const secondary = filter === '错题集'
+    ? button('返回错题集', openMistakes)
+    : filter === reviewMode
+      ? button('结束复习', () => setFilter('全部题目'))
+      : button('随机排序', shuffle);
+  foot.append(paging, secondary);
+  panel.append(foot);
+  if (filter === '错题集' && results[q.id]?.done && !results[q.id].wrong) {
+    panel.append(node('p', '本题已掌握，已从待重练列表移除。', 'quiet'));
+  }
+  if (storageFailed) panel.append(node('p', '浏览器未允许本地存储，本次记录会在关闭后清除。', 'quiet'));
+}
+const day = 86400000;
+const reviewMode = '今日复习';
+const reviewDrafts = new Map();
+const reviewChecks = new Map();
+const relatedTopics = [
+  /黄芩|黄连|黄柏/, /煎服|先煎|后下|包煎|另煎|烊化/, /止痛|痛经/, /止泻|泄泻/,
+  /补体|C3转化酶/, /MHC|HLA|抗原提呈/, /超敏反应/, /ELISA/, /Ig[GAMED]|免疫球蛋白/
+];
+const confidenceLevels = [['不会', 'retry'], ['模糊／蒙对', 'unsure'], ['熟练', 'known']];
+
+function dueDate(question) {
+  const entry = results[question.id];
+  return entry?.reviewDue || (entry?.wrong ? 1 : Infinity);
+}
+
+function reviewPlan(now = Date.now()) {
+  const due = bank.filter(q => dueDate(q) <= now).sort((a,b) => dueDate(a) - dueDate(b));
+  const chosen = due.slice(0, 8);
+  const chapters = new Set(chosen.map(q => q.chapter));
+  const fresh = bank.filter(q => !results[q.id]?.done && !chosen.includes(q) && (q.answer || q.reference));
+  const topics = relatedTopics.filter(topic => chosen.some(q => topic.test(q.question)));
+  const variants = fresh.filter(q => topics.some(topic => topic.test(q.question)));
+  const nearby = fresh.filter(q => q.chapter && chapters.has(q.chapter));
+  const extras = [...new Set([...variants, ...nearby, ...fresh])];
+  const written = extras.find(q => q.type === '问答题');
+  return [...new Set([...chosen, ...extras.slice(0, chosen.length ? 2 : 5), ...(written ? [written] : [])])];
+}
+
+function reviewPatch(q, level) {
+  const streak = level === 'known' ? Math.min((results[q.id]?.reviewStreak || 0) + 1, 5) : 0;
+  const interval = level === 'known' ? [1, 3, 7, 14, 30][streak - 1] : 1;
+  return {confidence: level, reviewStreak: streak, reviewDue: Date.now() + interval * day};
+}
+
+function openToday() {
+  filter = reviewMode;
+  mistakeList = false;
+  queue = reviewPlan().map(q => q.id);
+  go(queue[0], true);
+}
+
+function showReviewSummary() {
+  const due = bank.filter(q => dueDate(q) <= Date.now());
+  const row = document.querySelector('#study-overview');
+  row.replaceChildren();
+  const info = node('div');
+  info.append(node('strong', '今日复习'), node('span',
+    due.length ? due.length + ' 道待复习' : '暂无到期题', 'quiet'));
+  const start = button(filter === reviewMode ? '重新安排' : '开始复习', openToday, 'primary');
+  row.append(info, start);
+}
+
+function confidenceControls(q) {
+  const group = node('div', null, 'actions confidence');
+  group.setAttribute('role', 'group');
+  group.setAttribute('aria-label', '自评掌握程度');
+  for (const [label, level] of confidenceLevels) {
+    const control = button(label, () => {
+      if (assessment === level) return;
+      const wrong = level === 'retry';
+      const count = results[q.id]?.wrongCount || Number(Boolean(results[q.id]?.wrong));
+      assessment = level;
+      record(q, {
+        ...reviewPatch(q, level),
+        ...(q.options.length ? {} : {done:true, wrong, wrongCount:count + Number(wrong)})
+      });
+      update(control.id);
+    });
+    control.id = 'confidence-' + level;
+    control.setAttribute('aria-pressed', String(results[q.id]?.confidence === level));
+    group.append(control);
+  }
+  return group;
+}
+
+function answerDraft(q) {
+  const label = node('label', '先写要点，再对照答案', 'study-draft');
+  const input = node('textarea');
+  input.rows = 3;
+  input.value = reviewDrafts.get(q.id) || '';
+  input.addEventListener('input', () => reviewDrafts.set(q.id, input.value));
+  label.append(input);
+  return label;
+}
+
+function answerChecklist(q, text) {
+  const points = text.split(/[。；;\n]+/).map(part => part.trim()).filter(Boolean);
+  if (points.length < 2 || points.length > 12) return null;
+  const fieldset = node('fieldset', null, 'study-checklist');
+  fieldset.append(node('legend', '勾选你写到的要点'));
+  if (!reviewChecks.has(q.id)) reviewChecks.set(q.id, new Set());
+  const checked = reviewChecks.get(q.id);
+  const status = node('div', null, 'quiet');
+  status.setAttribute('role', 'status');
+  const showCount = () => { status.textContent = '已写到 ' + checked.size + ' / ' + points.length + ' 点'; };
+  points.forEach((point, index) => {
+    const label = node('label');
+    const box = node('input');
+    box.type = 'checkbox';
+    box.checked = checked.has(index);
+    box.addEventListener('change', () => {
+      if (box.checked) checked.add(index);
+      else checked.delete(index);
+      showCount();
+    });
+    label.append(box, node('span', point));
+    fieldset.append(label);
+  });
+  showCount();
+  fieldset.append(status);
+  return fieldset;
+}
+
+function chooseExamPool(kind, targeted) {
+  const pool = examPools[kind].map(question => ({question, tie:Math.random()}));
+  if (!targeted) return pool.sort((a,b) => a.tie - b.tie).map(row => row.question);
+  const priority = q => {
+    const entry = results[q.id];
+    return (entry?.wrong ? 4 : 0) + (entry?.confidence === 'unsure' ? 2 : 0) +
+      (dueDate(q) <= Date.now() ? 1 : 0);
+  };
+  return pool.sort((a,b) => priority(b.question) - priority(a.question) || a.tie - b.tie).map(row => row.question);
+}
+
+document.addEventListener('keydown', event => {
+  if (event.defaultPrevented || event.repeat || event.altKey || event.ctrlKey || event.metaKey ||
+      event.target.closest('input, textarea, select, a, summary, [contenteditable]') ||
+      (event.key === ' ' && event.target.closest('button')) ||
+      filter === '模拟试卷' || mistakeList || !panel.querySelector('#answer-toggle')) return;
+  const shortcuts = {
+    ArrowLeft: '#previous-question', ArrowRight: '#next-question', ' ': '#answer-toggle',
+    '1': '#choice-A', '2': '#choice-B', '3': '#choice-C', '4': '#choice-D', '5': '#choice-E'
+  };
+  const target = shortcuts[event.key] && panel.querySelector(shortcuts[event.key]);
+  if (!target || target.disabled || target.getAttribute('aria-disabled') === 'true') return;
+  event.preventDefault();
+  target.click();
+});
+
+render();
+</script>
+</html>
+

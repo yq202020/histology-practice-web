@@ -1,0 +1,797 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>生理学刷题</title>
+<style>
+:root{color-scheme:light;--paper:#f6f4ee;--white:#fffdf8;--ink:#252b28;--muted:#5b6159;--line:#deded3;--accent:#244f40;--soft:#e8eee5;--red:#8f332b}
+*{box-sizing:border-box}
+body{margin:0;color:var(--ink);background:var(--paper);font:16px/1.65 "Source Sans 3","PingFang SC","Microsoft YaHei",sans-serif}
+[hidden]{display:none!important}
+header{border-bottom:1px solid var(--line);background:var(--white)}
+.head{max-width:1120px;margin:auto;padding:19px 30px;display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.brand strong{font:700 23px/1.3 "Songti SC","Noto Serif CJK SC","SimSun",serif;letter-spacing:.055em}
+.total,.quiet{color:var(--muted);font-size:14px}
+main{max-width:1120px;margin:36px auto;padding:0 30px;display:grid;grid-template-columns:218px minmax(0,1fr);gap:38px}
+aside h2{font-size:14px;margin:0 0 10px;color:var(--muted);font-weight:600}
+nav{display:grid;gap:2px}
+button,.jump{font:inherit;color:inherit;background:var(--white);border:1px solid var(--line);border-radius:4px;padding:8px 13px;min-height:42px}
+button{cursor:pointer}
+button:hover:not(:disabled){border-color:var(--accent)}
+button:disabled{cursor:default;opacity:.48}
+button:focus-visible,.jump:focus-visible,h1:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+nav button{display:flex;justify-content:space-between;align-items:center;border-color:transparent;background:transparent;text-align:left;gap:9px}
+nav button[aria-current=true]{background:var(--soft);color:var(--accent);font-weight:700;border-left-color:var(--accent)}
+nav span{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.tools{margin-top:18px;padding-top:12px;border-top:1px solid var(--line)}
+.chapter{width:100%;margin-bottom:10px}
+.panel{background:var(--white);border:1px solid var(--line);padding:27px 30px;min-width:0}
+.meta,.foot,.actions{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.meta{color:var(--muted);font-size:14px}
+.meta strong{font-weight:600;color:var(--accent)}
+progress{width:100%;height:4px;display:block;margin:13px 0 24px;accent-color:var(--accent)}
+h1{font:700 clamp(22px,3vw,30px)/1.5 "Songti SC","Noto Serif CJK SC","SimSun",serif;margin:0 0 19px;overflow-wrap:anywhere}
+.choices{display:grid;gap:7px;margin-bottom:18px}
+.choices button{text-align:left;min-height:46px;padding:9px 13px}
+.choices button.good{background:var(--soft);border-color:var(--accent)}
+.choices button.bad{background:#f7e8e1;color:var(--red);border-color:var(--red)}
+.choices button[aria-disabled=true]{cursor:default}
+.answer{white-space:pre-wrap;overflow-wrap:anywhere;background:var(--soft);padding:13px 15px;border-left:2px solid var(--accent);margin:14px 0}
+.answer strong{display:block;margin-bottom:4px}
+.answer .quiet{margin-top:8px}
+.foot{border-top:1px solid var(--line);margin-top:23px;padding-top:14px}
+.primary{background:var(--accent);color:white;border-color:var(--accent)}
+.actions{justify-content:flex-start}
+.jump{max-width:100%;padding:6px 8px}
+.review-head{margin-bottom:13px}
+.review-head h1{margin-bottom:2px}
+.review-list{list-style:none;padding:0;margin:18px 0 0;border-top:1px solid var(--line)}
+.review-list li{border-bottom:1px solid var(--line)}
+.review-list button{display:block;width:100%;text-align:left;border:0;border-radius:0;background:transparent;padding:13px 5px;overflow-wrap:anywhere}
+.review-list button:hover{background:var(--soft)}
+.review-list .quiet{display:block;margin-bottom:3px}
+@media(max-width:680px){
+  .head{padding:14px 16px}
+  .brand strong{font-size:20px}
+  main{margin:15px auto;padding:0 12px;display:block}
+  aside h2{display:none}
+  nav,.tools{display:flex;flex-wrap:wrap;gap:3px}
+  nav button{font-size:14px;padding:5px 9px;gap:5px;min-height:38px}
+  .tools{margin:6px 0 12px;padding-top:4px}
+  .panel{padding:16px 14px}
+  .foot,.actions{gap:6px}
+}
+.explanation{border-top:1px solid var(--line);margin-top:12px;padding-top:10px}
+.exam-form{max-width:440px}
+.exam-setting{display:grid;grid-template-columns:minmax(0,1fr) 65px 83px;gap:9px;align-items:center;padding:11px 0;border-bottom:1px solid var(--line)}
+.exam-setting input,.exam-question textarea{width:100%;font:inherit;color:inherit;background:var(--white);border:1px solid var(--line);border-radius:4px;padding:8px}
+.exam-setting input:focus-visible,.exam-question textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.exam-total{font-size:17px;font-weight:650;margin:0}
+.exam-form .exam-total{margin:16px 0}
+.exam-header{border-bottom:1px solid var(--line);padding-bottom:12px}
+.exam-header .quiet{margin:3px 0 0}
+.exam-section h2{font-size:17px;margin:24px 0 14px;color:var(--accent)}
+.exam-question{min-inline-size:0;margin:0 0 20px;padding:0 0 17px;border:0;border-bottom:1px solid var(--line)}
+.exam-question legend{font-weight:600;overflow-wrap:anywhere;padding:0 0 8px;width:100%}
+.exam-question textarea{resize:vertical;display:block}
+.exam-options{display:grid;gap:4px}
+.exam-option{display:flex;align-items:baseline;gap:7px;padding:5px 8px;overflow-wrap:anywhere}
+.exam-option input{accent-color:var(--accent);flex-shrink:0}
+.exam-option.correct{background:var(--soft)}
+.exam-option.incorrect{background:#f7e8e1;color:var(--red)}
+.exam-question .actions{margin:9px 0 0}
+@media(max-width:380px){.exam-setting{grid-template-columns:minmax(0,1fr) 56px 72px;gap:5px}}
+.subject-nav{max-width:1120px;margin:auto;padding:6px 30px;display:flex;gap:6px;flex-wrap:wrap}.subject-nav a{color:var(--accent,#244f40);padding:8px 12px;text-decoration:none;border-radius:8px;line-height:1.3}.subject-nav a[aria-current=page]{font-weight:700;background:var(--soft,#e8eee5)}.subject-nav a:focus-visible{outline:2px solid var(--accent,#244f40)}@media(max-width:680px){.subject-nav{padding-inline:12px}}
+body{font-family:system-ui,"PingFang SC","Microsoft YaHei",sans-serif}
+.head{padding-block:16px}
+main{column-gap:26px;margin-top:18px}
+button,.jump{border-radius:8px;min-height:44px}
+button[aria-pressed=true]{background:var(--soft);border-color:var(--accent);color:var(--accent);font-weight:650}
+button.primary{background:var(--accent);color:white}
+button.primary:hover:not(:disabled){filter:brightness(1.12)}
+.panel{border-radius:14px;box-shadow:0 4px 18px #25372d0b}
+.choices button{min-height:50px}
+#study-overview{max-width:1060px;margin:18px auto 0;padding:12px 16px;border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:10px;background:var(--white);display:flex;gap:12px;align-items:center;justify-content:space-between}
+#study-overview strong,#study-overview .quiet{display:block}
+.study-draft{display:block;color:var(--muted);font-size:14px;margin-bottom:16px}
+.study-draft textarea{display:block;width:100%;resize:vertical;margin-top:5px;padding:9px;border:1px solid var(--line);border-radius:8px;background:var(--white);color:var(--ink);font:inherit}
+.study-draft textarea:focus-visible,.study-checklist input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.study-checklist{margin:12px 0;border:1px solid var(--line);padding:8px 12px;border-radius:8px}
+.study-checklist label{display:flex;gap:8px;align-items:baseline;padding:5px 0}
+.study-checklist input{accent-color:var(--accent);flex:none}
+.confidence{margin-top:12px}
+.shortcuts{margin:10px 0 0}
+@media(max-width:1119px){#study-overview{margin-inline:30px}}
+@media(max-width:680px){
+  #study-overview{margin:10px 12px 0}
+  main{margin-top:10px}
+  nav button{min-height:44px}
+  .foot .actions:first-child{display:grid;grid-template-columns:auto minmax(0,1fr) auto;width:100%}
+  .shortcuts{display:none}
+}
+.ig-diagram{position:relative;width:min(100%,340px);height:232px;border:1px solid var(--line);border-radius:12px;background:var(--soft);margin:14px 0;color:var(--ink)}
+.ig-chain{position:absolute;display:block;border-radius:10px;background:var(--accent);height:9px;transform-origin:left center}
+.ig-chain.heavy-left{width:105px;left:50%;top:108px;transform:rotate(228deg)}
+.ig-chain.heavy-right{width:105px;left:50%;top:108px;transform:rotate(-48deg)}
+.ig-chain.light-left,.ig-chain.light-right{width:69px;background:#975820}
+.ig-chain.light-left{left:calc(50% - 24px);top:104px;transform:rotate(228deg)}
+.ig-chain.light-right{left:calc(50% + 24px);top:104px;transform:rotate(-48deg)}
+.ig-chain.stem{height:79px;width:14px;top:108px;left:calc(50% - 6px)}
+button.ig-marker{position:absolute;min-width:44px;padding:0;border-color:var(--accent);border-radius:50%;font-weight:700}
+button.ig-marker[aria-pressed=true]{background:var(--accent);color:white}
+.marker-1{left:calc(50% + 68px);top:63px}.marker-2{left:calc(50% + 22px);top:104px}
+.marker-3{left:calc(50% - 22px);top:177px}.marker-4{left:calc(50% - 96px);top:15px}
+.subject-nav .sync-nav-link{margin-left:auto;border:1px solid var(--accent,#244f40);font-weight:650}#study-sync:target{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px;scroll-margin-top:12px}@media(max-width:680px){.subject-nav .sync-nav-link{margin-left:0}}
+#study-sync{max-width:1120px;margin:12px auto 0;padding:0 30px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+#study-sync input{font:inherit;max-width:100%;padding:5px;border:1px solid var(--line);border-radius:4px}
+</style>
+<header><div class="head"><div class="brand"><strong>生理学</strong></div><span class="total" id="total"></span></div><nav class="subject-nav" aria-label="切换科目"><a href="../">组织学与胚胎学</a><a href="../tcm/">中药学</a><a href="../immunology/">医学免疫学</a><a href="../physiology/" aria-current="page">生理学</a><a href="../biochemistry/">生物化学</a><a class="sync-nav-link" href="#study-sync">登录同步</a></nav></header>
+<form id="study-sync" aria-label="跨浏览器同步" data-subject="physiology"></form>
+<section id="study-overview" aria-label="今日复习"></section>
+<main>
+<aside><h2>练习范围</h2><select class="jump chapter" id="chapter" aria-label="按章节筛选"></select><nav id="types" aria-label="题型"></nav><nav class="tools" id="review" aria-label="复习范围"></nav></aside>
+<section class="panel" id="panel" aria-label="当前练习"></section>
+</main>
+<script type="application/json" id="bank">[{"id": "physiology-review-001", "number": 1, "chapter": "绪论", "question": "血压升高后，压力感受器兴奋引发降压反应，这属于哪种反馈？", "source": "《生理学期末复习讲义》PDF 第 3 页", "options": [["A", "A．前馈"], ["B", "B．条件反射"], ["C", "C．负反馈"], ["D", "D．正反馈"]], "type": "单选题", "answer": "C", "explanation": "初始血压偏离被反向效应削弱。"}, {"id": "physiology-review-002", "number": 2, "chapter": "绪论", "question": "自身调节", "source": "《生理学期末复习讲义》PDF 第 3 页", "options": [], "type": "名词解释", "answer": "组织、细胞或器官在内外环境变化时，依靠自身特性产生相对局部的适应性反应。"}, {"id": "physiology-review-003", "number": 3, "chapter": "细胞的基本功能", "question": "静息状态下，多数神经细胞的膜电位主要接近哪种离子的平衡电位？", "source": "《生理学期末复习讲义》PDF 第 4 页", "options": [["A", "A．K⁺"], ["B", "B．Ca²⁺"], ["C", "C．Mg²⁺"], ["D", "D．Na⁺"]], "type": "单选题", "answer": "A", "explanation": "静息时膜对K⁺的通透性相对较高。"}, {"id": "physiology-review-004", "number": 4, "chapter": "细胞的基本功能", "question": "神经纤维动作电位上升支的主要离子基础是什么？", "source": "《生理学期末复习讲义》PDF 第 4 页", "options": [["A", "A．Cl⁻内流"], ["B", "B．Ca²⁺外流"], ["C", "C．K⁺外流"], ["D", "D．Na⁺内流"]], "type": "单选题", "answer": "D", "explanation": "电压门控Na⁺通道开放，导致快速去极化。"}, {"id": "physiology-review-005", "number": 5, "chapter": "细胞的基本功能", "question": "Na⁺-K⁺泵每消耗一个 ATP，通常转运多少离子？", "source": "《生理学期末复习讲义》PDF 第 4 页", "options": [["A", "A．泵出3个K⁺，泵入2个Na⁺"], ["B", "B．泵出2个Na⁺，泵入3个K⁺"], ["C", "C．泵出3个Na⁺，泵入2个K⁺"], ["D", "D．泵出2个K⁺，泵入2个Na⁺"]], "type": "单选题", "answer": "C", "explanation": "Na⁺-K⁺泵依赖ATP直接供能，维持两种离子的跨膜梯度。"}, {"id": "physiology-review-006", "number": 6, "chapter": "细胞的基本功能", "question": "比较局部电位和动作电位，并指出各自能否总和。", "source": "《生理学期末复习讲义》PDF 第 5 页", "options": [], "type": "问答题", "answer": "局部电位幅度随刺激强度而变，可发生时间或空间总和，传导随距离衰减。动作电位达到阈值后呈全或无，可再生性传导，通常不能总和。"}, {"id": "physiology-review-007", "number": 7, "chapter": "细胞的基本功能", "question": "说明骨骼肌兴奋如何经横管和肌质网引发收缩。", "source": "《生理学期末复习讲义》PDF 第 5 页", "options": [], "type": "问答题", "answer": "膜动作电位沿横管传播，触发肌质网释放Ca²⁺。Ca²⁺结合肌钙蛋白，原肌球蛋白移位，肌动蛋白与肌球蛋白形成横桥。Ca²⁺回收入肌质网后，肌肉舒张。"}, {"id": "physiology-review-008", "number": 8, "chapter": "血液", "question": "血浆胶体渗透压主要由哪一种成分维持？", "source": "《生理学期末复习讲义》PDF 第 6 页", "options": [["A", "A．白蛋白"], ["B", "B．NaCl"], ["C", "C．血糖"], ["D", "D．尿素"]], "type": "单选题", "answer": "A", "explanation": "血浆蛋白中白蛋白对维持血浆胶体渗透压的贡献最大。"}, {"id": "physiology-review-009", "number": 9, "chapter": "血液", "question": "血浆晶体渗透压和胶体渗透压各主要调节哪一层面的水分布？", "source": "《生理学期末复习讲义》PDF 第 6 页", "options": [], "type": "问答题", "answer": "晶体渗透压主要影响细胞内外水分布。胶体渗透压主要影响血管内外水分布，其重要来源是白蛋白。"}, {"id": "physiology-review-010", "number": 10, "chapter": "血液", "question": "交叉配血主侧将哪两种成分混合？", "source": "《生理学期末复习讲义》PDF 第 7 页", "options": [["A", "A．受者红细胞与供者血清"], ["B", "B．受者红细胞与受者血清"], ["C", "C．供者红细胞与受者血清"], ["D", "D．供者红细胞与供者血清"]], "type": "单选题", "answer": "C", "explanation": "主侧用于观察受者血清是否与供者红细胞发生凝集。"}, {"id": "physiology-review-011", "number": 11, "chapter": "血液循环", "question": "等容收缩期，房室瓣和半月瓣处于什么状态？", "source": "《生理学期末复习讲义》PDF 第 8 页", "options": [["A", "A．房室瓣开、半月瓣关"], ["B", "B．均关闭"], ["C", "C．均开放"], ["D", "D．房室瓣关、半月瓣开"]], "type": "单选题", "answer": "B", "explanation": "室内压已超过房内压但尚未超过动脉压，故两组瓣膜关闭。"}, {"id": "physiology-review-012", "number": 12, "chapter": "血液循环", "question": "按心室收缩到舒张的顺序，说明等容收缩、射血、等容舒张和充盈各期的瓣膜状态。", "source": "《生理学期末复习讲义》PDF 第 8 页", "options": [], "type": "问答题", "answer": "等容收缩两组瓣都关闭，室压上升。射血期半月瓣开放、房室瓣关闭。等容舒张两组瓣都关闭，室压下降。充盈期房室瓣开放、半月瓣关闭。"}, {"id": "physiology-review-013", "number": 13, "chapter": "血液循环", "question": "正常窦房结细胞动作电位0期主要依赖哪种离子流？", "source": "《生理学期末复习讲义》PDF 第 9 页", "options": [["A", "A．K⁺内流"], ["B", "B．Ca²⁺内流"], ["C", "C．Cl⁻外流"], ["D", "D．快Na⁺内流"]], "type": "单选题", "answer": "B", "explanation": "窦房结属于慢反应细胞，0期去极化主要依赖钙通道。"}, {"id": "physiology-review-014", "number": 14, "chapter": "血液循环", "question": "急性动脉血压升高时，说明压力感受性反射如何使血压回落。", "source": "《生理学期末复习讲义》PDF 第 10 页", "options": [], "type": "问答题", "answer": "颈动脉窦和主动脉弓牵张增加，传入冲动增加。中枢使心迷走活动增强，交感活动减弱，心率和心输出量下降、外周血管舒张，血压回落。"}, {"id": "physiology-review-015", "number": 15, "chapter": "呼吸", "question": "潮气量500 mL、无效腔150 mL、呼吸频率12次/分。肺泡通气量是多少？", "source": "《生理学期末复习讲义》PDF 第 11 页", "options": [["A", "A．6.0 L/min"], ["B", "B．7.8 L/min"], ["C", "C．1.8 L/min"], ["D", "D．4.2 L/min"]], "type": "单选题", "answer": "D", "explanation": "肺泡通气量＝（潮气量－无效腔量）×频率，等于4200 mL/min。"}, {"id": "physiology-review-016", "number": 16, "chapter": "呼吸", "question": "分钟通气量相同，为什么深慢呼吸通常比浅快呼吸的肺泡通气量高？", "source": "《生理学期末复习讲义》PDF 第 11 页", "options": [], "type": "问答题", "answer": "每次呼吸都有一部分气体停留在无效腔。在相同分钟通气量下，呼吸频率越高，每分钟重复进入无效腔的总气量越多，因此浅快呼吸的肺泡通气量较低。"}, {"id": "physiology-review-017", "number": 17, "chapter": "呼吸", "question": "局部肺泡有通气但几乎无血流时，通气／血流比值趋向什么？", "source": "《生理学期末复习讲义》PDF 第 12 页", "options": [["A", "A．零"], ["B", "B．0.8"], ["C", "C．1"], ["D", "D．无穷大"]], "type": "单选题", "answer": "D", "explanation": "通气仍存在，分母血流趋于零，接近肺泡无效腔状态。"}, {"id": "physiology-review-018", "number": 18, "chapter": "消化与吸收", "question": "哪种胃壁细胞分泌内因子？", "source": "《生理学期末复习讲义》PDF 第 13 页", "options": [["A", "A．G细胞"], ["B", "B．主细胞"], ["C", "C．壁细胞"], ["D", "D．黏液细胞"]], "type": "单选题", "answer": "C", "explanation": "壁细胞还分泌盐酸。内因子有助于维生素B₁₂在回肠吸收。"}, {"id": "physiology-review-019", "number": 19, "chapter": "消化与吸收", "question": "比较胰液和胆汁在脂肪消化吸收中的作用。", "source": "《生理学期末复习讲义》PDF 第 14 页", "options": [], "type": "问答题", "answer": "胰液中的脂肪酶参与水解脂肪，其碳酸氢盐中和胃酸。胆盐乳化脂肪并参与形成混合微胶粒，促进脂肪消化产物摄取；胆汁本身不提供消化酶。"}, {"id": "physiology-review-020", "number": 20, "chapter": "能量代谢与体温", "question": "环境温度高于皮肤温度时，人体主要靠哪种方式实现净散热？", "source": "《生理学期末复习讲义》PDF 第 15 页", "options": [["A", "A．传导"], ["B", "B．对流"], ["C", "C．辐射"], ["D", "D．蒸发"]], "type": "单选题", "answer": "D", "explanation": "环境较热时，辐射、传导和对流可带来热量，蒸发仍可散热。"}, {"id": "physiology-review-021", "number": 21, "chapter": "尿的生成和排泄", "question": "肾小球滤过率", "source": "《生理学期末复习讲义》PDF 第 16 页", "options": [], "type": "名词解释", "answer": "单位时间内两肾生成的超滤液量，常以mL/min表示。"}, {"id": "physiology-review-022", "number": 22, "chapter": "尿的生成和排泄", "question": "在其他条件不变时，肾小囊内压升高，肾小球有效滤过压如何改变？", "source": "《生理学期末复习讲义》PDF 第 16 页", "options": [["A", "A．降低"], ["B", "B．不变"], ["C", "C．升高"], ["D", "D．必然变为零"]], "type": "单选题", "answer": "A", "explanation": "肾小囊内压是对抗滤过的压力。"}, {"id": "physiology-review-023", "number": 23, "chapter": "尿的生成和排泄", "question": "比较水利尿与渗透性利尿，分别交代起始因素和尿量增加机制。", "source": "《生理学期末复习讲义》PDF 第 17 页", "options": [], "type": "问答题", "answer": "大量饮水使血浆晶体渗透压降低，ADH释放减少，集合管水重吸收减少。渗透性利尿由小管液中难以被重吸收的溶质增多所致，小管液渗透压升高，水重吸收减少。"}, {"id": "physiology-review-024", "number": 24, "chapter": "感觉器官", "question": "看近物时，晶状体曲度通常怎样改变？", "source": "《生理学期末复习讲义》PDF 第 18 页", "options": [["A", "A．不变"], ["B", "B．先减小后保持"], ["C", "C．减小"], ["D", "D．增大"]], "type": "单选题", "answer": "D", "explanation": "睫状肌收缩，悬韧带松弛，晶状体变凸，折光能力增强。"}, {"id": "physiology-review-025", "number": 25, "chapter": "神经系统", "question": "抑制性突触后电位（IPSP）", "source": "《生理学期末复习讲义》PDF 第 19 页", "options": [], "type": "名词解释", "answer": "抑制性突触传递在突触后膜产生的局部电位变化，可使膜超极化或通过分流抑制降低触发动作电位的概率。"}, {"id": "physiology-review-026", "number": 26, "chapter": "神经系统", "question": "比较突触前抑制和突触后抑制的作用位置与效应。", "source": "《生理学期末复习讲义》PDF 第 19 页", "options": [], "type": "问答题", "answer": "突触前抑制作用于兴奋性神经末梢，减少递质释放。突触后抑制直接作用于突触后膜，降低其兴奋性。"}, {"id": "physiology-review-027", "number": 27, "chapter": "神经系统", "question": "交感神经节前纤维释放的递质主要是什么？", "source": "《生理学期末复习讲义》PDF 第 20 页", "options": [["A", "A．去甲肾上腺素"], ["B", "B．多巴胺"], ["C", "C．谷氨酸"], ["D", "D．乙酰胆碱"]], "type": "单选题", "answer": "D", "explanation": "交感和副交感节前纤维均属胆碱能，主要作用于神经节的烟碱型受体。"}, {"id": "physiology-review-028", "number": 28, "chapter": "内分泌", "question": "激素的允许作用", "source": "《生理学期末复习讲义》PDF 第 21 页", "options": [], "type": "名词解释", "answer": "一种激素通过维持靶组织的反应性，使另一种激素能够充分发挥效应。如糖皮质激素有助于维持血管对儿茶酚胺的反应。"}, {"id": "physiology-review-029", "number": 29, "chapter": "内分泌", "question": "原发性甲状腺功能减退时，甲状腺激素和TSH通常如何变化？说明反馈原因。", "source": "《生理学期末复习讲义》PDF 第 21 页", "options": [], "type": "问答题", "answer": "甲状腺激素下降。对下丘脑和腺垂体的负反馈减弱，TSH通常升高。"}, {"id": "physiology-review-030", "number": 30, "chapter": "生殖", "question": "排卵前哪种促性腺激素出现峰值，直接促发排卵？", "source": "《生理学期末复习讲义》PDF 第 23 页", "options": [["A", "A．ACTH"], ["B", "B．TSH"], ["C", "C．LH"], ["D", "D．催乳素"]], "type": "单选题", "answer": "C", "explanation": "排卵前雌激素持续升高产生正反馈，引发LH峰。"}, {"id": "physiology-review-031", "number": 31, "chapter": "细胞的基本功能", "question": "阈电位", "source": "《生理学期末复习讲义》PDF 第 4 页", "options": [], "type": "名词解释", "answer": "膜去极化达到可以触发再生性动作电位的临界水平。"}, {"id": "physiology-review-032", "number": 32, "chapter": "血液", "question": "从生理性止血的角度说明小血管损伤后发生的三个主要过程。", "source": "《生理学期末复习讲义》PDF 第 6 页", "options": [], "type": "问答题", "answer": "损伤后局部血管收缩以减少出血。血小板黏附、活化并聚集形成血小板栓。凝血系统产生纤维蛋白，稳定血小板栓。"}, {"id": "physiology-review-033", "number": 33, "chapter": "血液循环", "question": "心室肌动作电位平台期主要由哪两种相反方向的离子流形成？", "source": "《生理学期末复习讲义》PDF 第 9 页", "options": [["A", "A．Na⁺外流与K⁺内流"], ["B", "B．K⁺内流与Cl⁻内流"], ["C", "C．Cl⁻外流与Ca²⁺外流"], ["D", "D．Ca²⁺内流与K⁺外流"]], "type": "单选题", "answer": "D", "explanation": "平台期L型钙通道介导的内向电流与K⁺外向电流相对平衡。"}, {"id": "physiology-review-034", "number": 34, "chapter": "尿的生成和排泄", "question": "肾小球滤过率为120 mL/min、肾血浆流量为600 mL/min，滤过分数为多少？", "source": "《生理学期末复习讲义》PDF 第 16 页", "options": [["A", "A．72%"], ["B", "B．50%"], ["C", "C．5%"], ["D", "D．20%"]], "type": "单选题", "answer": "D", "explanation": "滤过分数为肾小球滤过率除以肾血浆流量，即120÷600。"}, {"id": "physiology-review-035", "number": 35, "chapter": "神经系统", "question": "牵张反射", "source": "《生理学期末复习讲义》PDF 第 20 页", "options": [], "type": "名词解释", "answer": "骨骼肌受到牵拉时，通过以肌梭为感受器的反射，使受到牵拉的同一块肌肉发生收缩。"}, {"id": "physiology-review-036", "number": 36, "chapter": "内分泌", "question": "血钾升高时，肾上腺皮质哪种激素的分泌可增加？", "source": "《生理学期末复习讲义》PDF 第 22 页", "options": [["A", "A．肾上腺素"], ["B", "B．胰高血糖素"], ["C", "C．醛固酮"], ["D", "D．催产素"]], "type": "单选题", "answer": "C", "explanation": "血钾升高可促进醛固酮释放，醛固酮有助于促进肾排钾。"}, {"id": "phys-practice-extension-001", "number": 37, "chapter": "细胞的基本功能", "question": "比较葡萄糖经GLUT入细胞和Na⁺-葡萄糖同向转运的能量来源。", "source": "《生理简答题 还行》 · 第2题", "options": [], "type": "问答题", "answer": "GLUT介导易化扩散，葡萄糖顺浓度梯度移动。Na⁺-葡萄糖同向转运借Na⁺顺电化学梯度移动驱动葡萄糖转运，属于继发性主动转运；Na⁺梯度由Na⁺-K⁺泵维持。"}, {"id": "phys-practice-extension-002", "number": 38, "chapter": "血液循环", "question": "房室交界处传导缓慢，对心室充盈有什么意义？", "source": "《生理简答题 还行》 · 第8题", "options": [], "type": "问答题", "answer": "使心房有时间完成收缩，随后心室再收缩，有利于心室充盈。"}, {"id": "phys-practice-extension-003", "number": 39, "chapter": "血液循环", "question": "其余条件相近时，外周阻力增加对收缩压和舒张压的影响有何不同？", "source": "《生理简答题 还行》 · 第9题", "options": [], "type": "问答题", "answer": "舒张期动脉血液向外周流出的速度减慢，舒张压升高通常更明显，脉压可减小。"}, {"id": "phys-practice-extension-004", "number": 40, "chapter": "呼吸", "question": "若呼吸膜的厚度增加而其他条件不变，气体弥散会怎样改变？", "source": "《生理简答题 还行》 · 第14题", "options": [["A", "A．减慢"], ["B", "B．加快"], ["C", "C．不变"], ["D", "D．方向必然逆转"]], "type": "单选题", "answer": "A", "explanation": "弥散速率与膜厚度成反比。"}, {"id": "phys-practice-extension-005", "number": 41, "chapter": "消化与吸收", "question": "胃主细胞分泌什么？这种分泌物怎样转为有活性的形式？", "source": "《生理简答题 还行》 · 第15题", "options": [], "type": "问答题", "answer": "主细胞分泌胃蛋白酶原，在酸性环境下活化为胃蛋白酶，已有的胃蛋白酶可促进更多酶原活化。"}, {"id": "phys-practice-extension-006", "number": 42, "chapter": "尿的生成和排泄", "question": "当葡萄糖滤过负荷超过肾小管重吸收能力时，为什么会出现多尿？", "source": "《生理简答题 还行》 · 第19题", "options": [], "type": "问答题", "answer": "部分葡萄糖留在小管液中，提高小管液渗透压，使水重吸收减少，出现渗透性利尿。"}, {"id": "phys-practice-extension-007", "number": 43, "chapter": "内分泌", "question": "下丘脑释放激素主要经什么途径到达腺垂体？", "source": "《生理简答题 还行》 · 第20题", "options": [["A", "A．垂体门脉系统"], ["B", "B．脑脊液循环"], ["C", "C．淋巴管"], ["D", "D．下丘脑神经轴突直接释放到腺垂体"]], "type": "单选题", "answer": "A", "explanation": "下丘脑调节性激素经垂体门脉影响腺垂体分泌。"}, {"id": "phys-practice-extension-008", "number": 44, "chapter": "内分泌", "question": "从原料、反馈和靶器官反应三个环节说明长期缺碘为何可引起甲状腺肿大。", "source": "《生理简答题 还行》 · 第21题", "options": [], "type": "问答题", "answer": "碘不足限制甲状腺激素合成，负反馈减弱，TSH刺激持续增强，使甲状腺滤泡细胞增生或肥大。"}]</script>
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.js" integrity="sha384-rwykjmWNwVxboyFmvK9OXN0wj9hnMHA2aAHtits54DuACyCq0M2PrSNxhRb+hvXT" crossorigin="anonymous"></script>
+<script defer src="../study-sync.js?v=988d8884e09a" integrity="sha384-kMGF9VBQDb4QvyLklmIb8erLq9YsENCTRLAshYD1UTmElmwWYwOZkARfm76z5yt0" crossorigin="anonymous"></script>
+<script>
+'use strict';
+const bank = JSON.parse(document.querySelector('#bank').textContent);
+const byId = new Map(bank.map(q => [q.id, q]));
+const storageKey = 'physiology-study-v1';
+let saved;
+try { saved = JSON.parse(localStorage.getItem(storageKey) || '{}') || {}; } catch { saved = {}; }
+const results = saved.results || {};
+let filter = '全部题目';
+let mistakeList = false;
+let assessment;
+let order = bank.map(q => q.id);
+let current = byId.has(saved.current) ? saved.current : order[0];
+let revealed = false;
+let selected = '';
+let storageFailed = false;
+const panel = document.querySelector('#panel');
+const types = ["全部题目", "单选题", "名词解释", "问答题"];
+const reviews = ['模拟试卷', '错题集', '收藏'];
+const inType = q => filter === '全部题目' || (filter === '错题集' ? results[q.id]?.wrong : filter === '收藏' ? results[q.id]?.star : q.type === filter);
+const chapterSelect = document.querySelector('#chapter');
+for (const chapter of ['全部章节', ...new Set(bank.map(q => q.chapter))]) {
+  const option = node('option', chapter);
+  option.value = chapter;
+  chapterSelect.append(option);
+}
+const collection = q => (filter === '错题集' || chapterSelect.value === '全部章节' || q.chapter === chapterSelect.value) && inType(q);
+chapterSelect.addEventListener('change', () => setFilter('全部题目'));
+let queue = order.filter(id => collection(byId.get(id)));
+document.querySelector('#total').textContent = '共 ' + bank.length + ' 题';
+
+function node(tag, text, className) {
+  const element = document.createElement(tag);
+  if (text != null) element.textContent = text;
+  if (className) element.className = className;
+  return element;
+}
+function button(label, action, className) {
+  const element = node('button', label, className);
+  element.type = 'button';
+  element.addEventListener('click', action);
+  return element;
+}
+function save() {
+  try { localStorage.setItem(storageKey, JSON.stringify({results, current})); }
+  catch { storageFailed = true; }
+}
+function go(id, focus = false) {
+  current = id;
+  revealed = false;
+  selected = '';
+  assessment = undefined;
+  save();
+  if (id) window.queueStudyEvent?.({id, cursor: true});
+  render();
+  if (focus) panel.querySelector('h1')?.focus();
+}
+function setFilter(value) {
+  if (value === '模拟试卷') {
+    openExam();
+    return;
+  }
+  if (value === '错题集') {
+    openMistakes();
+    return;
+  }
+  mistakeList = false;
+  filter = value;
+  queue = order.filter(id => collection(byId.get(id)));
+  go(queue.includes(current) ? current : queue[0], true);
+}
+function renderNav() {
+  for (const [selector, labels] of [['#types', types], ['#review', reviews]]) {
+    const nav = document.querySelector(selector);
+    nav.replaceChildren();
+    for (const label of labels) {
+      const count = bank.filter(q => (label === '错题集' || chapterSelect.value === '全部章节' || q.chapter === chapterSelect.value) && (label === '全部题目' || q.type === label || (label === '错题集' && results[q.id]?.wrong) || (label === '收藏' && results[q.id]?.star))).length;
+      const control = button(label, () => setFilter(label));
+      if (label !== '模拟试卷') control.append(node('span', count));
+      control.setAttribute('aria-current', String(label === filter));
+      nav.append(control);
+    }
+  }
+}
+function record(q, changes) {
+  results[q.id] = {...results[q.id], ...changes};
+  save();
+  window.queueStudyEvent?.({id: q.id, changes});
+}
+function update(focusId) {
+  render();
+  if (focusId) document.getElementById(focusId)?.focus();
+}
+function shuffle() {
+  const shuffled = [...order];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  order = shuffled;
+  queue = order.filter(id => collection(byId.get(id)));
+  go(queue[0], true);
+}
+function openMistakes() {
+  filter = '错题集';
+  mistakeList = true;
+  render();
+  panel.querySelector('h1')?.focus();
+}
+
+function renderMistakes() {
+  const ids = order.filter(id => results[id]?.wrong);
+  const header = node('div', null, 'review-head');
+  const title = node('h1', '错题集');
+  title.tabIndex = -1;
+  header.append(title, node('div', '待重练 ' + ids.length + ' 题', 'quiet'));
+  panel.append(header);
+  if (!ids.length) {
+    panel.append(node('p', '选择题答错或主观题标记为错题后，会显示在这里。', 'quiet'));
+    return;
+  }
+
+  function retry(id) {
+    mistakeList = false;
+    queue = ids;
+    go(id, true);
+  }
+  panel.append(button('开始重练', () => retry(ids[0]), 'primary'));
+  const list = node('ul', null, 'review-list');
+  for (const id of ids) {
+    const q = byId.get(id);
+    const entry = node('li');
+    const open = button(null, () => retry(id));
+    const wrongCount = results[id].wrongCount || 1;
+    open.append(node('span', q.chapter + ' · ' + q.type + ' · 错 ' + wrongCount + ' 次', 'quiet'),
+                node('span', q.question));
+    entry.append(open);
+    list.append(entry);
+  }
+  panel.append(list);
+}
+
+function recordAttempt(q, wrong) {
+  const previous = results[q.id];
+  const count = previous?.wrongCount || Number(Boolean(previous?.wrong));
+  record(q, {done: true, wrong, wrongCount: count + Number(wrong), ...reviewPatch(q, wrong ? 'retry' : 'known')});
+}
+
+const examKey = storageKey + '-exam';
+let exam = null;
+try {
+  const draft = JSON.parse(localStorage.getItem(examKey) || 'null');
+  if (draft?.items?.length && draft.items.every(item => byId.has(item.id))) exam = draft;
+} catch {}
+
+const examDefaults = {
+  '单选题': [20, 2],
+  '填空题': [5, 2],
+  '名词解释': [5, 4],
+  '问答题': [types.includes('填空题') ? 3 : 4, 10],
+  '功效速记': [0, 4],
+};
+const examPools = Object.fromEntries(types.slice(1).map(kind => [
+  kind, bank.filter(q => q.type === kind && q.answer),
+]));
+let configuringExam = false;
+
+function saveExam() {
+  try { localStorage.setItem(examKey, JSON.stringify(exam)); }
+  catch { storageFailed = true; }
+}
+
+function openExam() {
+  filter = '模拟试卷';
+  mistakeList = false;
+  configuringExam = !exam;
+  render();
+  panel.querySelector('h1')?.focus();
+}
+
+function renderExam() {
+  const title = node('h1', '模拟试卷');
+  title.tabIndex = -1;
+  panel.append(title);
+  if (configuringExam) {
+    renderExamSetup();
+    return;
+  }
+  renderExamPaper();
+  if (storageFailed) panel.append(node('p', '浏览器未允许保存试卷，本次作答仅在当前页面保留。', 'quiet'));
+}
+
+function renderExamSetup() {
+  const form = node('form', null, 'exam-form');
+  const countInputs = [];
+  for (const kind of types.slice(1)) {
+    const pool = examPools[kind];
+    const [defaultCount, points] = examDefaults[kind];
+    const label = node('label', null, 'exam-setting');
+    label.append(node('span', kind + ' · 每题 ' + points + ' 分', 'exam-setting-name'));
+    const input = node('input');
+    input.type = 'number';
+    input.min = '0';
+    input.max = String(pool.length);
+    input.step = '1';
+    input.required = true;
+    input.value = String(Math.min(defaultCount, pool.length));
+    label.append(input, node('small', '可选 ' + pool.length + ' 题', 'quiet'));
+    form.append(label);
+    countInputs.push({kind, input, points});
+  }
+  const targeted = node('input');
+  targeted.type = 'checkbox';
+  const targetedLabel = node('label');
+  targetedLabel.append(targeted, node('span', ' 优先练错题、模糊题和到期题'));
+  form.append(targetedLabel);
+  const total = node('p', null, 'exam-total');
+  total.setAttribute('aria-live', 'polite');
+  const submit = node('button', '生成试卷', 'primary');
+  submit.type = 'submit';
+  function summarize() {
+    const count = countInputs.reduce((sum, row) => sum + Number(row.input.value), 0);
+    const score = countInputs.reduce((sum, row) => sum + Number(row.input.value) * row.points, 0);
+    total.textContent = '共 ' + count + ' 题，满分 ' + score + ' 分';
+    submit.disabled = !count;
+  }
+  form.addEventListener('input', summarize);
+  form.addEventListener('submit', event => {
+    event.preventDefault();
+    const items = [];
+    for (const {kind, input, points} of countInputs) {
+      const pool = chooseExamPool(kind, targeted.checked);
+      const count = Number(input.value);
+      if (!Number.isInteger(count) || count < 0 || count > pool.length) return;
+      for (let i = 0; i < count; i++) {
+        items.push({id:pool[i].id, points, response:'', score:null});
+      }
+    }
+    if (!items.length) return;
+    exam = {items, submitted:false};
+    configuringExam = false;
+    saveExam();
+    render();
+    panel.querySelector('h1')?.focus();
+  });
+  summarize();
+  const actions = node('div', null, 'actions');
+  actions.append(submit);
+  if (exam) actions.append(button('返回当前试卷', () => {configuringExam = false; render();}));
+  form.append(total, actions);
+  panel.append(form);
+}
+
+function renderExamPaper() {
+  const maximum = exam.items.reduce((sum, item) => sum + item.points, 0);
+  const scoreStatus = node('p', null, 'exam-total');
+  scoreStatus.setAttribute('aria-live', 'polite');
+  const outstanding = node('p', null, 'quiet');
+  function refreshScore() {
+    if (exam.submitted) {
+      const score = exam.items.reduce((sum, item) => sum + (item.score ?? 0), 0);
+      const pending = exam.items.filter(item => item.score === null).length;
+      scoreStatus.textContent = '已得 ' + score + ' / ' + maximum + ' 分';
+      outstanding.textContent = pending ? '还有 ' + pending + ' 道主观题待自评。' : '评分完成。';
+    } else {
+      const answered = exam.items.filter(item => item.response.trim()).length;
+      scoreStatus.textContent = '已作答 ' + answered + ' / ' + exam.items.length + ' 题 · 满分 ' + maximum + ' 分';
+      outstanding.textContent = '交卷后显示答案和解析。';
+    }
+  }
+  const header = node('div', null, 'exam-header');
+  header.append(scoreStatus, outstanding);
+  panel.append(header);
+  refreshScore();
+
+  let lastType;
+  let section;
+  for (const [index, item] of exam.items.entries()) {
+    const q = byId.get(item.id);
+    if (q.type !== lastType) {
+      lastType = q.type;
+      section = node('section', null, 'exam-section');
+      section.append(node('h2', q.type + ' · 每题 ' + item.points + ' 分'));
+      panel.append(section);
+    }
+    const card = node('fieldset', null, 'exam-question');
+    card.append(node('legend', (index + 1) + '．' + q.question));
+    if (q.options.length) {
+      const options = node('div', null, 'exam-options');
+      for (const [key, value] of q.options) {
+        const label = node('label', null, 'exam-option');
+        const input = node('input');
+        input.type = 'radio';
+        input.name = 'exam-q-' + index;
+        input.value = key;
+        input.checked = item.response === key;
+        input.disabled = exam.submitted;
+        input.addEventListener('change', () => {
+          item.response = key;
+          saveExam();
+          refreshScore();
+        });
+        if (exam.submitted && key === q.answer) label.classList.add('correct');
+        if (exam.submitted && key === item.response && key !== q.answer) label.classList.add('incorrect');
+        label.append(input, node('span', value));
+        options.append(label);
+      }
+      card.append(options);
+    } else {
+      const response = node('textarea');
+      response.rows = q.type === '填空题' ? 2 : 4;
+      response.value = item.response;
+      response.readOnly = exam.submitted;
+      response.placeholder = '输入你的答案';
+      response.setAttribute('aria-label', '第 ' + (index + 1) + ' 题作答');
+      response.addEventListener('input', () => {
+        item.response = response.value;
+        saveExam();
+        refreshScore();
+      });
+      card.append(response);
+    }
+    if (exam.submitted) renderExamAnswer(card, item, q, index, refreshScore);
+    section.append(card);
+  }
+  const foot = node('div', null, 'foot');
+  if (exam.submitted) {
+    foot.append(button('重新组卷', () => {
+      configuringExam = true;
+      render();
+      panel.querySelector('h1')?.focus();
+    }, 'primary'));
+  } else {
+    foot.append(button('交卷', () => {
+      const unanswered = exam.items.filter(item => !item.response.trim()).length;
+      if (unanswered && !window.confirm('还有 ' + unanswered + ' 题未作答。现在交卷吗？')) return;
+      for (const item of exam.items) {
+        const q = byId.get(item.id);
+        if (q.options.length) {
+          const correct = item.response === q.answer;
+          item.score = correct ? item.points : 0;
+          if (item.response) recordAttempt(q, !correct);
+        } else if (!item.response.trim()) {
+          item.score = 0;
+        }
+      }
+      exam.submitted = true;
+      saveExam();
+      render();
+      panel.querySelector('h1')?.focus();
+    }, 'primary'));
+    foot.append(button('重新组卷', () => {
+      configuringExam = true;
+      render();
+      panel.querySelector('h1')?.focus();
+    }));
+  }
+  panel.append(foot);
+  panel.append(node('p', '键盘：← → 切题 · 空格看答案 · 数字键选答案', 'quiet shortcuts'));
+}
+
+function renderExamAnswer(card, item, q, index, refreshScore) {
+  const answer = node('div', null, 'answer');
+  const text = q.options.find(([key]) => key === q.answer)?.[1] || q.answer;
+  answer.append(node('strong', '参考答案'), node('div', text));
+  if (q.explanation) answer.append(node('div', q.explanation, 'explanation'));
+  if (q.source) answer.append(node('div', '来源 · ' + q.source, 'quiet'));
+  card.append(answer);
+  if (q.options.length || !item.response.trim()) {
+    card.append(node('p', '得分 ' + item.score + ' / ' + item.points, 'quiet'));
+    return;
+  }
+  const label = node('label', null, 'actions');
+  const select = node('select', null, 'jump');
+  select.setAttribute('aria-label', '第 ' + (index + 1) + ' 题自评得分');
+  const pending = node('option', '请选择得分');
+  pending.value = '';
+  pending.disabled = true;
+  select.append(pending);
+  for (let n = 0; n <= item.points; n++) {
+    const option = node('option', n + ' 分');
+    option.value = String(n);
+    select.append(option);
+  }
+  select.value = item.score === null ? '' : String(item.score);
+  select.addEventListener('change', () => {
+    const firstScore = item.score === null;
+    item.score = Number(select.value);
+    const wrong = item.score < item.points;
+    if (firstScore) recordAttempt(q, wrong);
+    else record(q, {done:true, wrong});
+    saveExam();
+    refreshScore();
+  });
+  label.append(node('span', '自评（满分 ' + item.points + ' 分）'), select);
+  card.append(label);
+}
+
+function render() {
+  renderNav();
+  showReviewSummary();
+  panel.replaceChildren();
+  if (filter === '模拟试卷') {
+    renderExam();
+    return;
+  }
+  if (mistakeList) {
+    renderMistakes();
+    return;
+  }
+  const q = byId.get(current);
+  const index = queue.indexOf(current);
+  if (!q || index < 0) {
+    panel.append(node('h1', filter === '错题集' ? '暂无错题' : filter === '收藏' ? '暂无收藏' : '本章暂无该题型'));
+    panel.append(button('返回全部题目', () => setFilter('全部题目'), 'primary'));
+    return;
+  }
+  const meta = node('div', null, 'meta');
+  const completed = queue.filter(id => results[id]?.done).length;
+  meta.append(node('strong', q.chapter + ' · ' + q.type), node('span', '当前 ' + (index + 1) + ' / ' + queue.length + ' · 已练 ' + completed));
+  const progress = node('progress');
+  progress.max = queue.length;
+  progress.value = completed;
+  progress.setAttribute('aria-label', '已练习题数');
+  const title = node('h1', q.question);
+  title.tabIndex = -1;
+  panel.append(meta, progress, title);
+  if (!q.options.length && q.answer) panel.append(answerDraft(q));
+  if (q.options.length) {
+    const choices = node('div', null, 'choices');
+    for (const [key, label] of q.options) {
+      const control = button(label, () => {
+        if (selected) return;
+        selected = key;
+        revealed = true;
+        if (q.answer) assessment = key === q.answer ? 'known' : 'retry';
+        if (q.answer) recordAttempt(q, key !== q.answer);
+        update('choice-' + key);
+      });
+      control.id = 'choice-' + key;
+      if (selected) control.setAttribute('aria-disabled', 'true');
+      if (revealed && key === q.answer) control.className = 'good';
+      else if (revealed && key === selected && q.answer) control.className = 'bad';
+      choices.append(control);
+    }
+    panel.append(choices);
+  }
+  const actions = node('div', null, 'actions');
+  const toggle = button(revealed ? '收起答案' : '查看答案', () => {
+    revealed = !revealed;
+    update('answer-toggle');
+  }, 'primary');
+  toggle.id = 'answer-toggle';
+  toggle.setAttribute('aria-expanded', String(revealed));
+  toggle.setAttribute('aria-controls', 'answer');
+  const star = button(results[q.id]?.star ? '取消收藏' : '收藏本题', () => {
+    record(q, {star:!results[q.id]?.star});
+    update('star');
+  });
+  star.id = 'star';
+  actions.append(toggle, star);
+  panel.append(actions);
+  const answer = node('div', null, 'answer');
+  answer.id = 'answer';
+  answer.hidden = !revealed;
+  answer.setAttribute('aria-live', 'polite');
+  if (revealed) {
+    const heading = selected && q.answer ? (selected === q.answer ? '答对了' : '答错了') : q.reference ? '题目辨析' : q.options.length ? '参考答案' : '参考答案与要点';
+    const answerText = q.options.find(([key]) => key === q.answer)?.[1] || q.reference || q.answer || '原表未提供答案';
+    answer.append(node('strong', heading), node('div', answerText));
+    if (q.note) answer.append(node('div', q.note));
+    if (q.explanation) {
+      const explanation = node('div', null, 'explanation');
+      explanation.append(node('strong', '解析'), node('div', q.explanation));
+      answer.append(explanation);
+    }
+    answer.append(node('div', '来源 · ' + q.source, 'quiet'));
+  }
+  panel.append(answer);
+  if (revealed && (q.answer || q.reference)) {
+    if (!q.options.length) {
+      const checklist = answerChecklist(q, q.answer || q.reference);
+      if (checklist) panel.append(checklist);
+    }
+    panel.append(confidenceControls(q));
+  }
+  const foot = node('div', null, 'foot');
+  const previous = button('上一题', () => go(queue[index - 1], true));
+  previous.id = "previous-question";
+  previous.disabled = index === 0;
+  const next = button('下一题', () => go(queue[index + 1], true));
+  next.id = "next-question";
+  next.disabled = index === queue.length - 1;
+  const jump = node('select', null, 'jump');
+  jump.setAttribute('aria-label', '跳到指定题目');
+  queue.forEach((id, i) => {
+    const item = byId.get(id);
+    const option = node('option', '第 ' + (i + 1) + ' 题 · ' + item.type);
+    option.value = id;
+    jump.append(option);
+  });
+  jump.value = current;
+  jump.addEventListener('change', () => go(jump.value, true));
+  const paging = node('div', null, 'actions');
+  paging.append(previous, jump, next);
+  const secondary = filter === '错题集'
+    ? button('返回错题集', openMistakes)
+    : filter === reviewMode
+      ? button('结束复习', () => setFilter('全部题目'))
+      : button('随机排序', shuffle);
+  foot.append(paging, secondary);
+  panel.append(foot);
+  if (filter === '错题集' && results[q.id]?.done && !results[q.id].wrong) {
+    panel.append(node('p', '本题已掌握，已从待重练列表移除。', 'quiet'));
+  }
+  if (storageFailed) panel.append(node('p', '浏览器未允许本地存储，本次记录会在关闭后清除。', 'quiet'));
+}
+const day = 86400000;
+const reviewMode = '今日复习';
+const reviewDrafts = new Map();
+const reviewChecks = new Map();
+const relatedTopics = [
+  /黄芩|黄连|黄柏/, /煎服|先煎|后下|包煎|另煎|烊化/, /止痛|痛经/, /止泻|泄泻/,
+  /补体|C3转化酶/, /MHC|HLA|抗原提呈/, /超敏反应/, /ELISA/, /Ig[GAMED]|免疫球蛋白/
+];
+const confidenceLevels = [['不会', 'retry'], ['模糊／蒙对', 'unsure'], ['熟练', 'known']];
+
+function dueDate(question) {
+  const entry = results[question.id];
+  return entry?.reviewDue || (entry?.wrong ? 1 : Infinity);
+}
+
+function reviewPlan(now = Date.now()) {
+  const due = bank.filter(q => dueDate(q) <= now).sort((a,b) => dueDate(a) - dueDate(b));
+  const chosen = due.slice(0, 8);
+  const chapters = new Set(chosen.map(q => q.chapter));
+  const fresh = bank.filter(q => !results[q.id]?.done && !chosen.includes(q) && (q.answer || q.reference));
+  const topics = relatedTopics.filter(topic => chosen.some(q => topic.test(q.question)));
+  const variants = fresh.filter(q => topics.some(topic => topic.test(q.question)));
+  const nearby = fresh.filter(q => q.chapter && chapters.has(q.chapter));
+  const extras = [...new Set([...variants, ...nearby, ...fresh])];
+  const written = extras.find(q => q.type === '问答题');
+  return [...new Set([...chosen, ...extras.slice(0, chosen.length ? 2 : 5), ...(written ? [written] : [])])];
+}
+
+function reviewPatch(q, level) {
+  const streak = level === 'known' ? Math.min((results[q.id]?.reviewStreak || 0) + 1, 5) : 0;
+  const interval = level === 'known' ? [1, 3, 7, 14, 30][streak - 1] : 1;
+  return {confidence: level, reviewStreak: streak, reviewDue: Date.now() + interval * day};
+}
+
+function openToday() {
+  filter = reviewMode;
+  mistakeList = false;
+  queue = reviewPlan().map(q => q.id);
+  go(queue[0], true);
+}
+
+function showReviewSummary() {
+  const due = bank.filter(q => dueDate(q) <= Date.now());
+  const row = document.querySelector('#study-overview');
+  row.replaceChildren();
+  const info = node('div');
+  info.append(node('strong', '今日复习'), node('span',
+    due.length ? due.length + ' 道待复习' : '暂无到期题', 'quiet'));
+  const start = button(filter === reviewMode ? '重新安排' : '开始复习', openToday, 'primary');
+  row.append(info, start);
+}
+
+function confidenceControls(q) {
+  const group = node('div', null, 'actions confidence');
+  group.setAttribute('role', 'group');
+  group.setAttribute('aria-label', '自评掌握程度');
+  for (const [label, level] of confidenceLevels) {
+    const control = button(label, () => {
+      if (assessment === level) return;
+      const wrong = level === 'retry';
+      const count = results[q.id]?.wrongCount || Number(Boolean(results[q.id]?.wrong));
+      assessment = level;
+      record(q, {
+        ...reviewPatch(q, level),
+        ...(q.options.length ? {} : {done:true, wrong, wrongCount:count + Number(wrong)})
+      });
+      update(control.id);
+    });
+    control.id = 'confidence-' + level;
+    control.setAttribute('aria-pressed', String(results[q.id]?.confidence === level));
+    group.append(control);
+  }
+  return group;
+}
+
+function answerDraft(q) {
+  const label = node('label', '先写要点，再对照答案', 'study-draft');
+  const input = node('textarea');
+  input.rows = 3;
+  input.value = reviewDrafts.get(q.id) || '';
+  input.addEventListener('input', () => reviewDrafts.set(q.id, input.value));
+  label.append(input);
+  return label;
+}
+
+function answerChecklist(q, text) {
+  const points = text.split(/[。；;\n]+/).map(part => part.trim()).filter(Boolean);
+  if (points.length < 2 || points.length > 12) return null;
+  const fieldset = node('fieldset', null, 'study-checklist');
+  fieldset.append(node('legend', '勾选你写到的要点'));
+  if (!reviewChecks.has(q.id)) reviewChecks.set(q.id, new Set());
+  const checked = reviewChecks.get(q.id);
+  const status = node('div', null, 'quiet');
+  status.setAttribute('role', 'status');
+  const showCount = () => { status.textContent = '已写到 ' + checked.size + ' / ' + points.length + ' 点'; };
+  points.forEach((point, index) => {
+    const label = node('label');
+    const box = node('input');
+    box.type = 'checkbox';
+    box.checked = checked.has(index);
+    box.addEventListener('change', () => {
+      if (box.checked) checked.add(index);
+      else checked.delete(index);
+      showCount();
+    });
+    label.append(box, node('span', point));
+    fieldset.append(label);
+  });
+  showCount();
+  fieldset.append(status);
+  return fieldset;
+}
+
+function chooseExamPool(kind, targeted) {
+  const pool = examPools[kind].map(question => ({question, tie:Math.random()}));
+  if (!targeted) return pool.sort((a,b) => a.tie - b.tie).map(row => row.question);
+  const priority = q => {
+    const entry = results[q.id];
+    return (entry?.wrong ? 4 : 0) + (entry?.confidence === 'unsure' ? 2 : 0) +
+      (dueDate(q) <= Date.now() ? 1 : 0);
+  };
+  return pool.sort((a,b) => priority(b.question) - priority(a.question) || a.tie - b.tie).map(row => row.question);
+}
+
+document.addEventListener('keydown', event => {
+  if (event.defaultPrevented || event.repeat || event.altKey || event.ctrlKey || event.metaKey ||
+      event.target.closest('input, textarea, select, a, summary, [contenteditable]') ||
+      (event.key === ' ' && event.target.closest('button')) ||
+      filter === '模拟试卷' || mistakeList || !panel.querySelector('#answer-toggle')) return;
+  const shortcuts = {
+    ArrowLeft: '#previous-question', ArrowRight: '#next-question', ' ': '#answer-toggle',
+    '1': '#choice-A', '2': '#choice-B', '3': '#choice-C', '4': '#choice-D', '5': '#choice-E'
+  };
+  const target = shortcuts[event.key] && panel.querySelector(shortcuts[event.key]);
+  if (!target || target.disabled || target.getAttribute('aria-disabled') === 'true') return;
+  event.preventDefault();
+  target.click();
+});
+
+render();
+</script>
+</html>
+
